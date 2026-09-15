@@ -103,6 +103,13 @@
             <option value="4">4</option><option value="5+">5+</option>
           </select>
         </div>
+        <div class="form-group">
+          <label data-fr="Comment souhaitez-vous régler ?" data-en="How would you like to pay?">Comment souhaitez-vous régler ?</label>
+          <div class="pay-choice">
+            <label><input type="radio" name="paiement" value="Lien de paiement securise" checked><span data-fr="Par lien de paiement sécurisé" data-en="By secure payment link">Par lien de paiement sécurisé</span></label>
+            <label><input type="radio" name="paiement" value="Especes sur place"><span data-fr="En espèces sur place" data-en="Cash on site">En espèces sur place</span></label>
+          </div>
+        </div>
         <div class="form-group"><label for="message" data-fr="Message (facultatif)" data-en="Message (optional)">Message (facultatif)</label><textarea id="message" name="message" placeholder="Allergies, régime alimentaire, niveau de pratique…"></textarea></div>
         <button type="submit" class="btn btn-dark" style="width:100%" data-fr="Envoyer ma demande" data-en="Send my request">Envoyer ma demande</button>
         <div id="form-success" role="alert" style="display:none;padding:16px;background:rgba(75,46,32,.06);border-radius:12px;text-align:center;font-weight:600"></div>
@@ -166,13 +173,41 @@
     e.preventDefault();
     var f = e.target;
     if (!f.checkValidity()) { f.reportValidity(); return; }
-    var l = langue();
-    var ok = document.getElementById('form-success');
-    ok.style.display = 'block';
-    ok.textContent = l === 'en'
-      ? '✓ Request sent. We confirm your place within 24 hours.'
-      : '✓ Demande envoyée. Nous vous confirmons votre place sous 24h.';
-    f.querySelectorAll('input, select, textarea, button').forEach(function(c){ c.disabled = true; });
+    var l   = langue();
+    var btn = f.querySelector('button[type=submit]');
+    var ok  = document.getElementById('form-success');
+    var mode = f.querySelector('input[name=paiement]:checked');
+
+    btn.disabled = true;
+    btn.textContent = l === 'en' ? 'Sending…' : 'Envoi en cours…';
+
+    envoyerDemande('Reservation stage - ' + f.prenom.value + ' ' + f.nom.value, {
+      'Stage'         : document.getElementById('recapTitre').textContent,
+      'Date'          : document.getElementById('recapDate').textContent,
+      'Lieu'          : document.getElementById('recapLieu').textContent,
+      'Prenom'        : f.prenom.value,
+      'Nom'           : f.nom.value,
+      'email'         : f.email.value,
+      'Telephone'     : f.telephone.value,
+      'Participantes' : f.participants.value,
+      'Paiement'      : mode ? mode.value : '',
+      'Message'       : f.message.value,
+      'Reference'     : f.reference.value
+    }).then(function(r){
+      ok.style.display = 'block';
+      if (!r.ok) {
+        btn.disabled = false;
+        btn.textContent = l === 'en' ? 'Send my request' : 'Envoyer ma demande';
+        ok.textContent = l === 'en'
+          ? "Sending failed. Please call us on 06 77 30 30 65."
+          : "L'envoi a échoué. Appelez-nous au 06 77 30 30 65.";
+        return;
+      }
+      ok.textContent = l === 'en'
+        ? '✓ Request sent. We confirm your place within 24 hours.'
+        : '✓ Demande envoyée. Nous vous confirmons votre place sous 24h.';
+      f.querySelectorAll('input, select, textarea, button').forEach(function(c){ c.disabled = true; });
+    });
   }
 
   afficher();

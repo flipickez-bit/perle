@@ -88,30 +88,48 @@
 
       <h3 class="account-section-title" data-fr="Recharger mes crédits" data-en="Top up my credits">Recharger mes crédits</h3>
       <p style="opacity:.65;font-weight:300;margin-top:-14px;margin-bottom:26px;font-size:.92rem" data-fr="Tous les cours sont au même prix : 1 crédit = 1 séance. Plus le pack est grand, moins la séance coûte cher — et plus vous avez de temps pour l'utiliser." data-en="All classes cost the same: 1 credit = 1 class. The bigger the pack, the cheaper the class — and the longer you have to use it.">Tous les cours sont au même prix : 1 crédit = 1 séance. Plus le pack est grand, moins la séance coûte cher — et plus vous avez de temps pour l'utiliser.</p>
+      <div class="pay-mode">
+        <span class="pay-mode-label" data-fr="Je réglerai" data-en="I will pay">Je réglerai</span>
+        <div class="pay-choice">
+          <label><input type="radio" name="packPaiement" value="Lien de paiement securise" checked><span data-fr="Par lien de paiement sécurisé" data-en="By secure payment link">Par lien de paiement sécurisé</span></label>
+          <label><input type="radio" name="packPaiement" value="Especes sur place"><span data-fr="En espèces sur place" data-en="Cash on site">En espèces sur place</span></label>
+        </div>
+      </div>
+
       <div class="credit-packs">
         <div class="pack">
           <h4 data-fr="Séance à l'unité" data-en="Single class">Séance à l'unité</h4>
           <div class="pack-credits">1</div>
           <div class="pack-price">38€ · <span data-fr="38€/séance" data-en="€38/class">38€/séance</span></div>
           <div class="pack-validite" data-fr="Valable 1 mois" data-en="Valid 1 month">Valable 1 mois</div>
-          <button class="btn btn-dark" data-credits="1" data-mois="1" data-fr="Acheter" data-en="Buy">Acheter</button>
+          <button class="btn btn-dark" data-credits="1" data-mois="1" data-nom="Séance à l'unité" data-prix="38€" data-fr="Commander" data-en="Order">Commander</button>
         </div>
         <div class="pack">
           <h4 data-fr="Pack 6 séances" data-en="6-class pack">Pack 6 séances</h4>
           <div class="pack-credits">6</div>
           <div class="pack-price">198€ · <span data-fr="33€/séance" data-en="€33/class">33€/séance</span></div>
           <div class="pack-validite" data-fr="Valable 2 mois" data-en="Valid 2 months">Valable 2 mois</div>
-          <button class="btn btn-dark" data-credits="6" data-mois="2" data-fr="Acheter" data-en="Buy">Acheter</button>
+          <button class="btn btn-dark" data-credits="6" data-mois="2" data-nom="Pack 6 séances" data-prix="198€" data-fr="Commander" data-en="Order">Commander</button>
         </div>
         <div class="pack">
           <h4 data-fr="Pack 12 séances" data-en="12-class pack">Pack 12 séances</h4>
           <div class="pack-credits">12</div>
           <div class="pack-price">348€ · <span data-fr="29€/séance" data-en="€29/class">29€/séance</span></div>
           <div class="pack-validite" data-fr="Valable 4 mois" data-en="Valid 4 months">Valable 4 mois</div>
-          <button class="btn btn-dark" data-credits="12" data-mois="4" data-fr="Acheter" data-en="Buy">Acheter</button>
+          <button class="btn btn-dark" data-credits="12" data-mois="4" data-nom="Pack 12 séances" data-prix="348€" data-fr="Commander" data-en="Order">Commander</button>
         </div>
       </div>
       <p id="buyMsg" style="margin-top:18px;font-weight:600;color:#4a7c48;min-height:1em"></p>
+
+      <div class="code-activation">
+        <h4 data-fr="J'ai reçu un code d'activation" data-en="I received an activation code">J'ai reçu un code d'activation</h4>
+        <p data-fr="Perle vous l'envoie dès que votre règlement est reçu — par lien sécurisé ou en espèces sur place." data-en="Perle sends it to you as soon as your payment is received — by secure link or in cash on site.">Perle vous l'envoie dès que votre règlement est reçu — par lien sécurisé ou en espèces sur place.</p>
+        <div class="code-row">
+          <input type="text" id="codeActivation" placeholder="NACRE6" autocomplete="off" spellcheck="false">
+          <button class="btn btn-dark" id="codeBtn" data-fr="Activer" data-en="Activate">Activer</button>
+        </div>
+        <p id="codeMsg" class="code-msg"></p>
+      </div>
 
       <h3 class="account-section-title" data-fr="Mes réservations" data-en="My bookings">Mes réservations</h3>
       <div class="history" id="history"></div>
@@ -226,19 +244,75 @@
     document.getElementById('guestSignup').addEventListener('click', () => Perle.openAuth('signup'));
     document.getElementById('guestLogin').addEventListener('click', () => Perle.openAuth('login'));
     document.getElementById('logoutBtn').addEventListener('click', () => { Perle.logout(); render(); });
+    /* Codes d'activation — Perle les transmet après réception du règlement.
+       Pour les changer (par exemple si un code circule trop), il suffit de
+       modifier cette liste. */
+    const CODES = {
+      'NACRE1'  : { credits: 1,  mois: 1 },
+      'NACRE6'  : { credits: 6,  mois: 2 },
+      'NACRE12' : { credits: 12, mois: 4 }
+    };
+
+    function modePaiement() {
+      const r = document.querySelector('input[name=packPaiement]:checked');
+      return r ? r.value : '';
+    }
+
+    /* Commander un pack : on prévient Perle, on ne crédite rien.
+       Les crédits n'arrivent qu'avec le code, donc après règlement. */
     document.querySelectorAll('.pack [data-credits]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const bonus = Perle.addCredits(+btn.getAttribute('data-credits'), +btn.getAttribute('data-mois') || null);
-        render();
+        const u = Perle.getUser();
+        if (!u) { Perle.openAuth('login'); return; }
         const m = document.getElementById('buyMsg');
-        m.textContent = (lang() === 'en' ? '✓ Credits added to your account.' : '✓ Crédits ajoutés à votre compte.')
-          + (bonus > 0
+        const etiquette = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = lang() === 'en' ? 'Sending…' : 'Envoi…';
+
+        envoyerDemande('Commande pack - ' + u.name, {
+          'Pack'      : btn.getAttribute('data-nom'),
+          'Prix'      : btn.getAttribute('data-prix'),
+          'Seances'   : btn.getAttribute('data-credits'),
+          'Validite'  : btn.getAttribute('data-mois') + ' mois',
+          'Cliente'   : u.name,
+          'email'     : u.email,
+          'Paiement'  : modePaiement()
+        }).then(r => {
+          btn.disabled = false;
+          btn.textContent = etiquette;
+          m.style.color = r.ok ? '#4a7c48' : '#a33';
+          m.textContent = r.ok
             ? (lang() === 'en'
-                ? '  🎁 Loyalty tier reached: ' + bonus + ' free class!'
-                : '  🎁 Palier fidélité atteint : ' + bonus + ' cours offert' + (bonus > 1 ? 's' : '') + ' !')
-            : '');
-        setTimeout(() => { m.textContent = ''; }, bonus > 0 ? 6000 : 2500);
+                ? '✓ Order sent. Perle will confirm and send you the payment details.'
+                : '✓ Commande envoyée. Perle vous confirme et vous transmet le règlement.')
+            : (lang() === 'en'
+                ? 'Sending failed. Please call 06 77 30 30 65.'
+                : "L'envoi a échoué. Appelez le 06 77 30 30 65.");
+          setTimeout(() => { m.textContent = ''; }, 8000);
+        });
       });
+    });
+
+    /* Activation des crédits par code */
+    document.getElementById('codeBtn').addEventListener('click', () => {
+      const champ = document.getElementById('codeActivation');
+      const msg   = document.getElementById('codeMsg');
+      const c     = CODES[champ.value.trim().toUpperCase()];
+      if (!c) {
+        msg.className = 'code-msg erreur';
+        msg.textContent = lang() === 'en' ? 'Unknown code.' : 'Code inconnu.';
+        return;
+      }
+      const bonus = Perle.addCredits(c.credits, c.mois);
+      champ.value = '';
+      render();
+      msg.className = 'code-msg';
+      msg.textContent = (lang() === 'en'
+          ? '✓ ' + c.credits + ' credit' + (c.credits > 1 ? 's' : '') + ' added.'
+          : '✓ ' + c.credits + ' crédit' + (c.credits > 1 ? 's' : '') + ' ajouté' + (c.credits > 1 ? 's' : '') + '.')
+        + (bonus > 0
+            ? (lang() === 'en' ? '  🎁 ' + bonus + ' free class!' : '  🎁 ' + bonus + ' cours offert !')
+            : '');
     });
   });
 </script>

@@ -1064,3 +1064,42 @@ footer { position: relative; z-index: 1; padding: 80px 0 34px; color: var(--ink)
   /* Pas d'intro animée — et surtout, jamais de voile figé devant la page */
   .page-intro { display: none !important; }
 }
+
+
+/* ── Choix du mode de règlement ──────────────────────────────── */
+.pay-mode { margin: 0 0 26px; }
+.pay-mode-label { display: block; font-size: .78rem; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 600; color: var(--shell); }
+
+.pay-choice { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.pay-choice label { display: flex; align-items: center; gap: 12px; cursor: pointer;
+  padding: 13px 16px; border: 1px solid rgba(75,46,32,.16); border-radius: 14px;
+  background: rgba(253,246,238,.55); font-weight: 400; font-size: .94rem;
+  color: var(--ink); transition: border-color .2s ease, background .2s ease;
+  /* on annule le style « intitulé de champ » hérité du formulaire */
+  text-transform: none; letter-spacing: normal; margin: 0; }
+.pay-choice label:hover { border-color: rgba(75,46,32,.38); }
+.pay-choice input { accent-color: var(--shell); width: 17px; height: 17px; flex: none; margin: 0; }
+.pay-choice label:has(input:checked) { border-color: var(--shell);
+  background: rgba(248,193,204,.24); font-weight: 500; }
+
+/* ── Activation des crédits par code ─────────────────────────── */
+.code-activation { margin-top: 34px; padding: 26px 28px; border-radius: var(--r-panel);
+  background: rgba(230,215,184,.38); border: 1px solid rgba(75,46,32,.1); }
+.code-activation h4 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.12rem;
+  color: var(--shell); margin: 0 0 6px; }
+.code-activation > p { font-size: .9rem; font-weight: 300; opacity: .72; margin: 0 0 16px; }
+.code-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.code-row input { flex: 1 1 200px; min-width: 0; padding: 13px 16px;
+  border: 1px solid rgba(75,46,32,.2); border-radius: 12px; background: #fff;
+  font-family: inherit; font-size: .95rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink); }
+.code-row input:focus { outline: none; border-color: var(--shell); }
+.code-row .btn { flex: 0 0 auto; }
+.code-msg { margin: 12px 0 0; font-weight: 600; font-size: .9rem; color: #4a7c48; min-height: 1em; }
+.code-msg.erreur { color: #A03A3A; }
+
+@media (max-width: 560px) {
+  .code-activation { padding: 22px 20px; }
+  .code-row .btn { width: 100%; }
+}

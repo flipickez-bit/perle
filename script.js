@@ -111,3 +111,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sel) { const opt = [...sel.options].find(o => o.value.startsWith(f)); if (opt) sel.value = opt.value; }
   }
 });
+
+/* ============================================================
+   PERLE — Envoi réel des demandes (réservations, commandes)
+   ============================================================ */
+
+/* Clé Web3Forms — à créer gratuitement sur https://web3forms.com
+   Tant qu'elle est vide, les formulaires basculent automatiquement sur
+   le logiciel de messagerie de la visiteuse : aucune demande ne se perd
+   silencieusement, ce qui était le cas auparavant. */
+const PERLE_FORM_KEY = '';
+const PERLE_CONTACT  = 'contact@perleexperience.com';
+
+function perleCorps(champs) {
+  return Object.keys(champs)
+    .filter(k => champs[k] !== '' && champs[k] != null)
+    .map(k => k + ' : ' + champs[k])
+    .join('\n');
+}
+
+/* Renvoie une promesse { ok, repli }. `repli` indique que l'on est passé
+   par le logiciel de messagerie faute de clé configurée. */
+function envoyerDemande(sujet, champs) {
+  if (!PERLE_FORM_KEY) {
+    window.location.href = 'mailto:' + PERLE_CONTACT
+      + '?subject=' + encodeURIComponent(sujet)
+      + '&body=' + encodeURIComponent(perleCorps(champs));
+    return Promise.resolve({ ok: true, repli: true });
+  }
+
+  const charge = { access_key: PERLE_FORM_KEY, subject: sujet, from_name: 'Site Perle' };
+  Object.keys(champs).forEach(k => { charge[k] = champs[k]; });
+
+  return fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(charge)
+  })
+  .then(r => ({ ok: r.ok, repli: false }))
+  .catch(() => ({ ok: false, repli: false }));
+}
