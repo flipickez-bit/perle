@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Page volontairement non référencée : on n'y arrive que par un bouton « Réserver ». -->
+  <meta name="robots" content="noindex, nofollow">
+  <title>Réserver — Perle</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Animation d'arrivée : la perle roule une fois -->
+<div class="page-intro" id="pageIntro" aria-hidden="true"><img src="logo-rose.png" alt=""></div>
+
+<nav id="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="Perle — Accueil"><span class="nav-logo-text">Perle</span><img src="Logo.PNG" alt="Perle logo"></a>
+    <div class="nav-links">
+      <a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a>
+      <a href="stages.html" data-fr="Stages" data-en="Retreats">Stages</a>
+      <a href="reservation.html" data-fr="Cours" data-en="Classes">Cours</a>
+      <a href="entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a>
+      <a href="historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+      <div class="lang-toggle" role="group" aria-label="Langue"><button class="active" onclick="setLang('fr')" aria-pressed="true">FR</button><button onclick="setLang('en')" aria-pressed="false">EN</button></div>
+    </div>
+    <button class="nav-burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <button class="mobile-close" id="mobileClose" aria-label="Fermer">&#10005;</button>
+  <a href="index.html" onclick="closeMobile()" data-fr="Accueil" data-en="Home">Accueil</a>
+  <a href="stages.html" onclick="closeMobile()" data-fr="Stages" data-en="Retreats">Stages</a>
+  <a href="reservation.html" onclick="closeMobile()" data-fr="Cours" data-en="Classes">Cours</a>
+  <a href="entreprises.html" onclick="closeMobile()" data-fr="Entreprises" data-en="Business">Entreprises</a>
+  <a href="historique.html" onclick="closeMobile()" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+  <div class="lang-toggle"><button class="active" onclick="setLang('fr'); closeMobile()">FR</button><button onclick="setLang('en'); closeMobile()">EN</button></div>
+</div>
+
+<!-- Message si on arrive ici sans avoir choisi de date -->
+<section class="reservation" id="sansChoix" style="display:none">
+  <div class="container" style="text-align:center;max-width:620px">
+    <span class="section-label" style="justify-content:center" data-fr="Réservation" data-en="Booking">Réservation</span>
+    <h2 data-fr="Choisissez d'abord votre date" data-en="Choose your date first">Choisissez d'abord votre date</h2>
+    <p style="margin:0 auto 28px" data-fr="Cette page se remplit automatiquement depuis la journée ou le cours que vous sélectionnez."
+       data-en="This page fills in automatically from the day or class you select.">
+      Cette page se remplit automatiquement depuis la journée ou le cours que vous sélectionnez.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="stages.html#dates" class="btn btn-dark" data-fr="Voir les stages" data-en="See retreats">Voir les stages</a>
+      <a href="reservation.html" class="btn btn-light" data-fr="Voir les cours" data-en="See classes">Voir les cours</a>
+    </div>
+  </div>
+</section>
+
+<!-- Formulaire -->
+<section class="reservation" id="formulaire" style="display:none">
+  <div class="container">
+    <div class="resa-grid">
+      <div class="resa-info fade-in">
+        <span class="section-label" data-fr="Réservation" data-en="Booking">Réservation</span>
+        <h2 data-fr="Votre demande" data-en="Your request">Votre demande</h2>
+
+        <!-- Récapitulatif de ce qui est réservé -->
+        <div class="resa-recap">
+          <span class="resa-recap-label" data-fr="Vous réservez" data-en="You are booking">Vous réservez</span>
+          <h3 id="recapTitre">—</h3>
+          <p id="recapDate">—</p>
+          <p id="recapLieu">—</p>
+          <p class="resa-recap-prix" id="recapPrix"></p>
+          <a href="stages.html#dates" id="recapChanger" class="resa-recap-lien" data-fr="Changer de date" data-en="Change date">Changer de date</a>
+        </div>
+
+        <p data-fr="Nous vous confirmons votre place et les modalités de paiement sous 24h."
+           data-en="We confirm your place and payment details within 24 hours.">
+          Nous vous confirmons votre place et les modalités de paiement sous 24h.
+        </p>
+        <div class="resa-contact">
+          <div class="resa-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.56-.56a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg><span>06 77 30 30 65</span></div>
+          <div class="resa-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>contact@perleexperience.com</span></div>
+        </div>
+      </div>
+
+      <form class="form fade-in" style="transition-delay:.15s" onsubmit="envoyer(event)" novalidate>
+        <input type="hidden" id="refChoix" name="reference">
+        <div class="form-row">
+          <div class="form-group"><label for="prenom" data-fr="Prénom *" data-en="First name *">Prénom *</label><input type="text" id="prenom" name="prenom" required autocomplete="given-name" placeholder="Marie"></div>
+          <div class="form-group"><label for="nom" data-fr="Nom *" data-en="Last name *">Nom *</label><input type="text" id="nom" name="nom" required autocomplete="family-name" placeholder="Dupont"></div>
+        </div>
+        <div class="form-group"><label for="email" data-fr="Email *" data-en="Email *">Email *</label><input type="email" id="email" name="email" required autocomplete="email" placeholder="marie.dupont@email.com"></div>
+        <div class="form-group"><label for="telephone" data-fr="Téléphone *" data-en="Phone *">Téléphone *</label><input type="tel" id="telephone" name="telephone" required autocomplete="tel" placeholder="06 12 34 56 78"></div>
+        <div class="form-group">
+          <label for="participants" data-fr="Nombre de participantes" data-en="Number of participants">Nombre de participantes</label>
+          <select id="participants" name="participants">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5+">5+</option>
+          </select>
+        </div>
+        <div class="form-group"><label for="message" data-fr="Message (facultatif)" data-en="Message (optional)">Message (facultatif)</label><textarea id="message" name="message" placeholder="Allergies, régime alimentaire, niveau de pratique…"></textarea></div>
+        <button type="submit" class="btn btn-dark" style="width:100%" data-fr="Envoyer ma demande" data-en="Send my request">Envoyer ma demande</button>
+        <div id="form-success" role="alert" style="display:none;padding:16px;background:rgba(75,46,32,.06);border-radius:12px;text-align:center;font-weight:600"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="border:none;margin:0;padding:0">
+      <p data-fr="© 2026 Perle. Tous droits réservés." data-en="© 2026 Perle. All rights reserved.">© 2026 Perle. Tous droits réservés.</p>
+      <div class="footer-social"><a href="https://www.instagram.com/perle_cotedazur/" target="_blank" rel="noopener" aria-label="Instagram">IG</a><a href="https://www.facebook.com/profile.php?id=61571725617693" target="_blank" rel="noopener" aria-label="Facebook">FB</a><a href="https://www.tiktok.com/@perle.cotedazur?lang=fr" target="_blank" rel="noopener" aria-label="TikTok">TK</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="auth.js"></script>
+<script src="script.js"></script>
+<script>
+  /* ── Catalogue des journées ──
+     ✏️ Une seule liste à tenir à jour, partagée avec stages.html. */
+  var STAGES = {
+    '2026-09-12': { fr:'Journée Perle — Signature', en:'Perle Day — Signature',
+                    dateFr:'samedi 12 septembre 2026', dateEn:'Saturday 12 September 2026',
+                    lieuFr:"Hôtel de luxe · Côte d'Azur", lieuEn:'Luxury hotel · French Riviera',
+                    horaire:'7h30 — 15h00', prix:'290 €' },
+    '2026-10-03': { fr:'Journée Perle — Signature', en:'Perle Day — Signature',
+                    dateFr:'samedi 3 octobre 2026', dateEn:'Saturday 3 October 2026',
+                    lieuFr:"Hôtel de luxe · Côte d'Azur", lieuEn:'Luxury hotel · French Riviera',
+                    horaire:'7h30 — 15h00', prix:'290 €' },
+    '2026-10-24': { fr:'Journée Perle — Automne', en:'Perle Day — Autumn',
+                    dateFr:'samedi 24 octobre 2026', dateEn:'Saturday 24 October 2026',
+                    lieuFr:"Hôtel de luxe · Côte d'Azur", lieuEn:'Luxury hotel · French Riviera',
+                    horaire:'7h30 — 15h00', prix:'290 €' }
+  };
+
+  function param(n){ return new URLSearchParams(location.search).get(n); }
+  function langue(){ return localStorage.getItem('perle-lang') || 'fr'; }
+
+  var choix = param('stage');
+  var infos = choix && STAGES[choix] ? STAGES[choix] : null;
+
+  function afficher(){
+    var l = langue();
+    if (!infos) {
+      document.getElementById('sansChoix').style.display = '';
+      document.getElementById('formulaire').style.display = 'none';
+      return;
+    }
+    document.getElementById('sansChoix').style.display = 'none';
+    document.getElementById('formulaire').style.display = '';
+    document.getElementById('recapTitre').textContent = l === 'en' ? infos.en : infos.fr;
+    document.getElementById('recapDate').textContent  = (l === 'en' ? infos.dateEn : infos.dateFr) + ' · ' + infos.horaire;
+    document.getElementById('recapLieu').textContent  = l === 'en' ? infos.lieuEn : infos.lieuFr;
+    document.getElementById('recapPrix').textContent  = infos.prix + (l === 'en' ? ' per person' : ' par personne');
+    document.getElementById('refChoix').value = choix;
+  }
+
+  function envoyer(e){
+    e.preventDefault();
+    var f = e.target;
+    if (!f.checkValidity()) { f.reportValidity(); return; }
+    var l = langue();
+    var ok = document.getElementById('form-success');
+    ok.style.display = 'block';
+    ok.textContent = l === 'en'
+      ? '✓ Request sent. We confirm your place within 24 hours.'
+      : '✓ Demande envoyée. Nous vous confirmons votre place sous 24h.';
+    f.querySelectorAll('input, select, textarea, button').forEach(function(c){ c.disabled = true; });
+  }
+
+  afficher();
+  window.addEventListener('perlelang', afficher);
+</script>
+</body>
+</html>

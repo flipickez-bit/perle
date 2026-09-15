@@ -1,0 +1,17 @@
+# Sauvegardes et travail local
+.backup-couleurs/
+.claude/
+sources-originales/
+perle-site.zip
+
+# Pages de travail, non publiées
+app.html
+qr.html
+
+# Fichiers de conception (cartes de visite, QR, déclinaisons du logo)
+carte a modifier.png
+carte de visite*.png
+qr-perle-*.png
+logo-perle-*.png
+Logo-original.PNG
+nacre.png

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notre historique — Perle</title>
+  <meta name="description" content="Retour sur les stages et les cours déjà organisés par Perle sur la Côte d'Azur.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Animation d'arrivée : la perle roule une fois -->
+<div class="page-intro" id="pageIntro" aria-hidden="true"><img src="logo-rose.png" alt=""></div>
+
+<nav id="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="Perle — Accueil"><span class="nav-logo-text">Perle</span><img src="Logo.PNG" alt="Perle logo"></a>
+    <div class="nav-links">
+      <a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a>
+      <a href="stages.html" data-fr="Stages" data-en="Retreats">Stages</a>
+      <a href="reservation.html" data-fr="Cours" data-en="Classes">Cours</a>
+      <a href="entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a>
+      <a href="historique.html" class="active" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+      <div class="lang-toggle" role="group" aria-label="Langue"><button class="active" onclick="setLang('fr')" aria-pressed="true">FR</button><button onclick="setLang('en')" aria-pressed="false">EN</button></div>
+    </div>
+    <button class="nav-burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <button class="mobile-close" id="mobileClose" aria-label="Fermer">✕</button>
+  <a href="index.html" onclick="closeMobile()" data-fr="Accueil" data-en="Home">Accueil</a>
+  <a href="stages.html" onclick="closeMobile()" data-fr="Stages" data-en="Retreats">Stages</a>
+  <a href="reservation.html" onclick="closeMobile()" data-fr="Cours" data-en="Classes">Cours</a>
+  <a href="entreprises.html" onclick="closeMobile()" data-fr="Entreprises" data-en="Business">Entreprises</a>
+  <a href="historique.html" onclick="closeMobile()" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+  <div class="lang-toggle"><button class="active" onclick="setLang('fr'); closeMobile()">FR</button><button onclick="setLang('en'); closeMobile()">EN</button></div>
+</div>
+
+<header class="page-hero">
+  <div class="container">
+    <p class="breadcrumb"><a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a> · <span data-fr="Notre historique" data-en="Our history">Notre historique</span></p>
+    <h1 data-fr="Notre historique" data-en="Our history">Notre historique</h1>
+    <p data-fr="Retour sur les journées et les cours que nous avons déjà orchestrés — les lieux, les rencontres et les instants qui font Perle."
+       data-en="A look back at the days and classes we have already orchestrated — the venues, the encounters and the moments that make Perle.">
+      Retour sur les journées et les cours que nous avons déjà orchestrés — les lieux, les rencontres et les instants qui font Perle.
+    </p>
+  </div>
+</header>
+
+<!-- LE MOT DE LA FONDATRICE -->
+<section class="fondatrice">
+  <div class="container">
+    <div class="fondatrice-grid">
+      <div class="fondatrice-photo fade-in" role="img" aria-label="Portrait de la fondatrice de Perle"></div>
+      <div class="fondatrice-mot fade-in" style="transition-delay:.15s">
+        <span class="section-label" data-fr="Le mot de la fondatrice" data-en="A word from the founder">Le mot de la fondatrice</span>
+        <blockquote>
+          <p data-fr="Perle est née d'une conviction simple : le bien-être mérite un écrin. J'ai voulu des journées où l'on n'a rien à porter, rien à organiser — juste à se laisser accueillir."
+             data-en="Perle was born from a simple conviction: wellbeing deserves a beautiful setting. I wanted days where you carry nothing and organise nothing — you simply let yourself be welcomed.">
+            Perle est née d'une conviction simple : le bien-être mérite un écrin. J'ai voulu des journées où l'on n'a rien à porter, rien à organiser — juste à se laisser accueillir.
+          </p>
+          <p data-fr="Chaque stage que nous avons organisé m'a confirmé une chose : ce dont on se souvient, ce n'est pas le programme. C'est la sensation d'avoir été attendue."
+             data-en="Every retreat we have organised confirmed one thing: what you remember is not the programme. It is the feeling of having been expected.">
+            Chaque stage que nous avons organisé m'a confirmé une chose : ce dont on se souvient, ce n'est pas le programme. C'est la sensation d'avoir été attendue.
+          </p>
+        </blockquote>
+        <p class="fondatrice-signature" data-fr="Fondatrice de Perle" data-en="Founder of Perle">Fondatrice de Perle</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ÉCRIVONS LA SUITE ENSEMBLE -->
+<section class="suite-band">
+  <div class="container fade-in">
+    <h2 data-fr="Écrivons la suite ensemble" data-en="Let's write the next chapter together">Écrivons la suite ensemble</h2>
+    <p data-fr="Tout ce qui précède, nous l'avons vécu avec des femmes qui, un jour, ont simplement réservé une place."
+       data-en="Everything that follows, we lived it with women who, one day, simply booked a place.">
+      Tout ce qui précède, nous l'avons vécu avec des femmes qui, un jour, ont simplement réservé une place.
+    </p>
+    <div class="suite-actions">
+      <a href="stages.html#dates" class="btn btn-dark" data-fr="Voir les prochaines dates" data-en="See upcoming dates">Voir les prochaines dates</a>
+      <a href="reservation.html" class="btn btn-outline" data-fr="Découvrir les cours" data-en="Discover the classes">Découvrir les cours</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><div class="footer-logo"><img src="Logo.PNG" alt="Perle"><span class="footer-logo-text">Perle</span></div>
+        <p data-fr="Stages d'une journée et cours de yoga et pilates dans les plus beaux lieux de la Côte d'Azur." data-en="One-day retreats and yoga & pilates classes in the most beautiful locations of the Riviera.">Stages d'une journée et cours de yoga et pilates dans les plus beaux lieux de la Côte d'Azur.</p></div>
+      <div class="footer-col"><h4 data-fr="Navigation" data-en="Navigation">Navigation</h4><ul>
+        <li><a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a></li>
+        <li><a href="stages.html" data-fr="Stages" data-en="Retreats">Stages</a></li>
+        <li><a href="reservation.html" data-fr="Cours" data-en="Classes">Cours</a></li>
+        <li><a href="entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a></li>
+        <li><a href="historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a></li>
+      </ul></div>
+      <div class="footer-col"><h4 data-fr="Mon espace" data-en="My space">Mon espace</h4><ul>
+        <li><a href="compte.html" data-fr="Mon profil" data-en="My profile">Mon profil</a></li>
+        <li><a href="stages.html#reserver" data-fr="Réserver un stage" data-en="Book a retreat">Réserver un stage</a></li>
+      </ul></div>
+      <div class="footer-col"><h4 data-fr="Contact" data-en="Contact">Contact</h4><ul>
+        <li><a href="tel:+33677303065">06 77 30 30 65</a></li>
+        <li><a href="mailto:contact@perleexperience.com">contact@perleexperience.com</a></li>
+        <li><span data-fr="Côte d'Azur, France" data-en="French Riviera, France">Côte d'Azur, France</span></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p data-fr="© 2026 Perle. Tous droits réservés." data-en="© 2026 Perle. All rights reserved.">© 2026 Perle. Tous droits réservés.</p>
+      <div class="footer-social"><a href="https://www.instagram.com/perle_cotedazur/" target="_blank" rel="noopener" aria-label="Instagram">IG</a><a href="https://www.facebook.com/profile.php?id=61571725617693" target="_blank" rel="noopener" aria-label="Facebook">FB</a><a href="https://www.tiktok.com/@perle.cotedazur?lang=fr" target="_blank" rel="noopener" aria-label="TikTok">TK</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="auth.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

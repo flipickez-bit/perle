@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon profil — Perle</title>
+  <meta name="description" content="Gérez votre compte Perle : crédits de séances, achats et historique de réservations.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Animation d'arrivée : la perle roule une fois -->
+<div class="page-intro" id="pageIntro" aria-hidden="true"><img src="logo-rose.png" alt=""></div>
+
+<nav id="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="Perle — Accueil"><span class="nav-logo-text">Perle</span><img src="Logo.PNG" alt="Perle logo"></a>
+    <div class="nav-links">
+      <a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a>
+      <a href="stages.html" data-fr="Stages" data-en="Retreats">Stages</a>
+      <a href="reservation.html" data-fr="Cours" data-en="Classes">Cours</a>
+      <a href="entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a>
+      <a href="historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+      <div class="lang-toggle" role="group" aria-label="Langue"><button class="active" onclick="setLang('fr')" aria-pressed="true">FR</button><button onclick="setLang('en')" aria-pressed="false">EN</button></div>
+    </div>
+
+    <button class="nav-burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <button class="mobile-close" id="mobileClose" aria-label="Fermer">&#10005;</button>
+  <a href="index.html" onclick="closeMobile()" data-fr="Accueil" data-en="Home">Accueil</a>
+  <a href="stages.html" onclick="closeMobile()" data-fr="Stages" data-en="Retreats">Stages</a>
+  <a href="reservation.html" onclick="closeMobile()" data-fr="Cours" data-en="Classes">Cours</a>
+  <a href="entreprises.html" onclick="closeMobile()" data-fr="Entreprises" data-en="Business">Entreprises</a>
+  <a href="historique.html" onclick="closeMobile()" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+  <div class="lang-toggle"><button class="active" onclick="setLang('fr'); closeMobile()">FR</button><button onclick="setLang('en'); closeMobile()">EN</button></div>
+</div>
+
+
+<section class="account">
+  <div class="container">
+
+    <!-- INVITÉ (non connecté) -->
+    <div class="account-guest" id="guestView" style="display:none">
+      <img src="Logo.PNG" alt="Perle" style="height:70px;margin:0 auto 24px">
+      <h2 data-fr="Votre espace bien-être" data-en="Your wellbeing space">Votre espace bien-être</h2>
+      <p data-fr="Connectez-vous ou créez un compte pour acheter des crédits, réserver vos séances et suivre votre historique." data-en="Log in or create an account to buy credits, book your classes and track your history.">Connectez-vous ou créez un compte pour acheter des crédits, réserver vos séances et suivre votre historique.</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-dark" id="guestSignup" data-fr="Créer un compte" data-en="Create account">Créer un compte</button>
+        <button class="btn btn-outline" id="guestLogin" style="color:var(--brown);border-color:var(--brown)" data-fr="Se connecter" data-en="Log in">Se connecter</button>
+      </div>
+    </div>
+
+    <!-- CONNECTÉ -->
+    <div id="memberView" style="display:none">
+      <div class="credit-hero">
+        <div>
+          <h2 id="greeting">—</h2>
+          <p data-fr="Bienvenue dans votre espace Perle." data-en="Welcome to your Perle space.">Bienvenue dans votre espace Perle.</p>
+        </div>
+        <div class="credit-balance">
+          <b id="balance">0</b>
+          <span data-fr="crédits disponibles" data-en="credits available">crédits disponibles</span>
+          <p class="credit-expire" id="creditExpire"></p>
+        </div>
+      </div>
+
+      <!-- Fidélité -->
+      <div class="loyalty">
+        <div class="loyalty-head">
+          <h3 data-fr="Ma fidélité" data-en="My loyalty">Ma fidélité</h3>
+          <span class="loyalty-count"><b id="loyTotal">0</b> <span data-fr="cours achetés" data-en="classes purchased">cours achetés</span></span>
+        </div>
+        <div class="loyalty-track-wrap">
+          <div class="loyalty-track"><div class="loyalty-fill" id="loyFill"></div></div>
+          <div id="loyTiers"></div>
+        </div>
+        <p class="loyalty-next" id="loyNext"></p>
+      </div>
+
+      <h3 class="account-section-title" data-fr="Recharger mes crédits" data-en="Top up my credits">Recharger mes crédits</h3>
+      <p style="opacity:.65;font-weight:300;margin-top:-14px;margin-bottom:26px;font-size:.92rem" data-fr="Tous les cours sont au même prix : 1 crédit = 1 séance. Plus le pack est grand, moins la séance coûte cher — et plus vous avez de temps pour l'utiliser." data-en="All classes cost the same: 1 credit = 1 class. The bigger the pack, the cheaper the class — and the longer you have to use it.">Tous les cours sont au même prix : 1 crédit = 1 séance. Plus le pack est grand, moins la séance coûte cher — et plus vous avez de temps pour l'utiliser.</p>
+      <div class="credit-packs">
+        <div class="pack">
+          <h4 data-fr="Séance à l'unité" data-en="Single class">Séance à l'unité</h4>
+          <div class="pack-credits">1</div>
+          <div class="pack-price">38€ · <span data-fr="38€/séance" data-en="€38/class">38€/séance</span></div>
+          <div class="pack-validite" data-fr="Valable 1 mois" data-en="Valid 1 month">Valable 1 mois</div>
+          <button class="btn btn-dark" data-credits="1" data-mois="1" data-fr="Acheter" data-en="Buy">Acheter</button>
+        </div>
+        <div class="pack">
+          <h4 data-fr="Pack 6 séances" data-en="6-class pack">Pack 6 séances</h4>
+          <div class="pack-credits">6</div>
+          <div class="pack-price">198€ · <span data-fr="33€/séance" data-en="€33/class">33€/séance</span></div>
+          <div class="pack-validite" data-fr="Valable 2 mois" data-en="Valid 2 months">Valable 2 mois</div>
+          <button class="btn btn-dark" data-credits="6" data-mois="2" data-fr="Acheter" data-en="Buy">Acheter</button>
+        </div>
+        <div class="pack">
+          <h4 data-fr="Pack 12 séances" data-en="12-class pack">Pack 12 séances</h4>
+          <div class="pack-credits">12</div>
+          <div class="pack-price">348€ · <span data-fr="29€/séance" data-en="€29/class">29€/séance</span></div>
+          <div class="pack-validite" data-fr="Valable 4 mois" data-en="Valid 4 months">Valable 4 mois</div>
+          <button class="btn btn-dark" data-credits="12" data-mois="4" data-fr="Acheter" data-en="Buy">Acheter</button>
+        </div>
+      </div>
+      <p id="buyMsg" style="margin-top:18px;font-weight:600;color:#4a7c48;min-height:1em"></p>
+
+      <h3 class="account-section-title" data-fr="Mes réservations" data-en="My bookings">Mes réservations</h3>
+      <div class="history" id="history"></div>
+
+      <div style="margin-top:44px;display:flex;gap:14px;flex-wrap:wrap">
+        <a href="index.html" class="btn btn-dark" data-fr="Réserver le prochain cours" data-en="Book the next class">Réserver le prochain cours</a>
+        <button class="btn btn-outline" id="logoutBtn" style="color:var(--brown);border-color:var(--brown)" data-fr="Se déconnecter" data-en="Log out">Se déconnecter</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><div class="footer-logo"><img src="Logo.PNG" alt="Perle"><span class="footer-logo-text">Perle</span></div>
+        <p data-fr="Yoga et pilates dans les plus beaux lieux de la Côte d'Azur. Une expérience unique, à votre rythme." data-en="Yoga and pilates in the most beautiful locations of the Riviera. A unique experience, at your own pace.">Yoga et pilates dans les plus beaux lieux de la Côte d'Azur. Une expérience unique, à votre rythme.</p></div>
+      <div class="footer-col"><h4 data-fr="Navigation" data-en="Navigation">Navigation</h4><ul>
+        <li><a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a></li>
+        <li><a href="stages.html" data-fr="Stages" data-en="Retreats">Stages</a></li>
+        <li><a href="reservation.html" data-fr="Cours" data-en="Classes">Cours</a></li>
+        <li><a href="historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a></li>
+      </ul></div>
+      <div class="footer-col"><h4 data-fr="Découvrir" data-en="Discover">Découvrir</h4><ul>
+        <li><a href="stages.html" data-fr="Journée Perle" data-en="Perle Day">Journée Perle</a></li>
+        <li><a href="reservation.html" data-fr="Nos cours" data-en="Our classes">Nos cours</a></li>
+        
+        <li><a href="entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a></li>
+      </ul></div>
+      <div class="footer-col"><h4 data-fr="Contact" data-en="Contact">Contact</h4><ul>
+        <li><a href="tel:+33677303065">06 77 30 30 65</a></li>
+        <li><a href="mailto:contact@perleexperience.com">contact@perleexperience.com</a></li>
+        <li><span data-fr="Nice, France" data-en="Nice, France">Nice, France</span></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p data-fr="© 2026 Perle. Tous droits réservés." data-en="© 2026 Perle. All rights reserved.">© 2026 Perle. Tous droits réservés.</p>
+      <div class="footer-social"><a href="#" aria-label="Instagram">IG</a><a href="#" aria-label="Facebook">FB</a><a href="#" aria-label="TikTok">TK</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="auth.js"></script>
+<script src="script.js"></script>
+<script>
+  function lang() { return localStorage.getItem('perle-lang') || 'fr'; }
+
+  function render() {
+    const u = Perle.getUser();
+    document.getElementById('guestView').style.display = u ? 'none' : 'block';
+    document.getElementById('memberView').style.display = u ? 'block' : 'none';
+    if (!u) return;
+    document.getElementById('greeting').textContent = (lang() === 'en' ? 'Hello, ' : 'Bonjour, ') + u.name;
+    document.getElementById('balance').textContent = Perle.soldeValide();
+
+    /* Échéance des crédits */
+    const ech = Perle.prochaineExpiration();
+    const zoneEch = document.getElementById('creditExpire');
+    if (!ech) {
+      zoneEch.textContent = '';
+      zoneEch.className = 'credit-expire';
+    } else {
+      const d = new Date(ech.expire).toLocaleDateString(lang() === 'en' ? 'en-GB' : 'fr-FR',
+        { day: 'numeric', month: 'long', year: 'numeric' });
+      const urgent = ech.jours <= 14;
+      zoneEch.className = 'credit-expire' + (urgent ? ' urgent' : '');
+      zoneEch.textContent = lang() === 'en'
+        ? ech.credits + ' credit(s) expire on ' + d + (urgent ? ' — ' + ech.jours + ' days left' : '')
+        : ech.credits + ' crédit(s) expirent le ' + d + (urgent ? ' — plus que ' + ech.jours + ' jours' : '');
+    }
+
+    /* Fidélité */
+    const total = u.purchased || 0;
+    const tiers = Perle.REWARDS;
+    const max = tiers[tiers.length - 1].threshold;
+    document.getElementById('loyTotal').textContent = total;
+    document.getElementById('loyFill').style.width = Math.min(100, (total / max) * 100) + '%';
+    document.getElementById('loyTiers').innerHTML = tiers.map(t => {
+      const done = total >= t.threshold;
+      return '<div class="loyalty-tier' + (done ? ' done' : '') + '" style="left:' + (t.threshold / max) * 100 + '%">' +
+        '<div class="loyalty-dot">' + (done ? '✓' : t.threshold) + '</div>' +
+        '<div class="loyalty-label">' + t.title + '</div></div>';
+    }).join('');
+    const next = tiers.find(t => total < t.threshold);
+    document.getElementById('loyNext').innerHTML = next
+      ? (lang() === 'en'
+          ? 'Only <b>' + (next.threshold - total) + '</b> more classes until: <b>' + t2en(next.title) + '</b>'
+          : 'Plus que <b>' + (next.threshold - total) + '</b> cours avant : <b>' + next.title + '</b>' + (next.detail ? ' · ' + next.detail : ''))
+      : (lang() === 'en' ? '🎉 All tiers reached — thank you for your loyalty!' : '🎉 Tous les paliers sont atteints — merci pour votre fidélité !');
+    function t2en(s){ return s; }
+
+    const hist = document.getElementById('history');
+    if (!u.bookings || u.bookings.length === 0) {
+      hist.innerHTML = '<div class="history-empty">' + (lang() === 'en' ? 'No bookings yet. Book your first class!' : "Aucune réservation pour l'instant. Réservez votre premier cours !") + '</div>';
+    } else {
+      hist.innerHTML = u.bookings.map(b => {
+        const d = new Date(b.date).toLocaleDateString(lang() === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        return '<div class="history-item"><div><div class="hi-title">' + escapeHtml(b.title) + '</div>' +
+          '<div class="hi-meta">' + escapeHtml(b.lieu) + ' · ' + d + '</div></div>' +
+          '<div class="hi-tag">−1 ' + (lang() === 'en' ? 'credit' : 'crédit') + '</div></div>';
+      }).join('');
+    }
+  }
+  function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+  window.onPerleAuth = render;
+  window.addEventListener('perlelang', render);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    render();
+    document.getElementById('guestSignup').addEventListener('click', () => Perle.openAuth('signup'));
+    document.getElementById('guestLogin').addEventListener('click', () => Perle.openAuth('login'));
+    document.getElementById('logoutBtn').addEventListener('click', () => { Perle.logout(); render(); });
+    document.querySelectorAll('.pack [data-credits]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const bonus = Perle.addCredits(+btn.getAttribute('data-credits'), +btn.getAttribute('data-mois') || null);
+        render();
+        const m = document.getElementById('buyMsg');
+        m.textContent = (lang() === 'en' ? '✓ Credits added to your account.' : '✓ Crédits ajoutés à votre compte.')
+          + (bonus > 0
+            ? (lang() === 'en'
+                ? '  🎁 Loyalty tier reached: ' + bonus + ' free class!'
+                : '  🎁 Palier fidélité atteint : ' + bonus + ' cours offert' + (bonus > 1 ? 's' : '') + ' !')
+            : '');
+        setTimeout(() => { m.textContent = ''; }, bonus > 0 ? 6000 : 2500);
+      });
+    });
+  });
+</script>
+</body>
+</html>

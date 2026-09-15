@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /carte.html
+Disallow: /reserver.html

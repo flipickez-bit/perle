@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perle — Yoga & Pilates sur la Côte d'Azur</title>
+  <meta name="description" content="Perle — Cours de yoga et pilates dans les plus beaux lieux de la Côte d'Azur. Réservez votre prochaine séance.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="home-page">
+
+<!-- Animation d'arrivée : la perle roule une fois -->
+<div class="page-intro" id="pageIntro" aria-hidden="true"><img src="logo-rose.png" alt=""></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="Perle — Accueil">
+      <span class="nav-logo-text">Perle</span>
+      <img src="Logo.PNG" alt="Perle logo">
+    </a>
+    <div class="nav-links">
+      <a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a>
+      <a href="stages.html" data-fr="Stages" data-en="Retreats">Stages</a>
+      <a href="reservation.html" data-fr="Cours" data-en="Classes">Cours</a>
+      <a href="entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a>
+      <a href="historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+      <div class="lang-toggle" role="group" aria-label="Langue"><button class="active" onclick="setLang('fr')" aria-pressed="true">FR</button><button onclick="setLang('en')" aria-pressed="false">EN</button></div>
+    </div>
+
+    <button class="nav-burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <button class="mobile-close" id="mobileClose" aria-label="Fermer">&#10005;</button>
+  <a href="index.html" onclick="closeMobile()" data-fr="Accueil" data-en="Home">Accueil</a>
+  <a href="stages.html" onclick="closeMobile()" data-fr="Stages" data-en="Retreats">Stages</a>
+  <a href="reservation.html" onclick="closeMobile()" data-fr="Cours" data-en="Classes">Cours</a>
+  <a href="entreprises.html" onclick="closeMobile()" data-fr="Entreprises" data-en="Business">Entreprises</a>
+  <a href="historique.html" onclick="closeMobile()" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+  <div class="lang-toggle"><button class="active" onclick="setLang('fr'); closeMobile()">FR</button><button onclick="setLang('en'); closeMobile()">EN</button></div>
+</div>
+
+
+<!-- ACCUEIL ÉPURÉ -->
+<main class="home-min has-nacre">
+  <p class="hm-eyebrow" data-fr="Yoga & Pilates" data-en="Yoga & Pilates">Yoga & Pilates</p>
+  <h1>Perle</h1>
+  <p class="hm-sub" data-fr="L'art de se retrouver, dans les plus beaux décors." data-en="The art of finding yourself, in the most beautiful settings.">L'art de se retrouver, dans les plus beaux décors.</p>
+
+  <div class="next-class" id="nextClass">
+    <span class="nc-label" data-fr="Prochain stage" data-en="Next retreat">Prochain stage</span>
+    <h2 class="nc-title" id="ncTitle">—</h2>
+    <p class="nc-meta" id="ncMeta">—</p>
+    <p class="nc-date" id="ncDate">—</p>
+    <div class="timer" id="timer" aria-live="polite">
+      <div><b id="t-d">00</b><span data-fr="Jours" data-en="Days">Jours</span></div>
+      <div class="sep">:</div>
+      <div><b id="t-h">00</b><span data-fr="Heures" data-en="Hours">Heures</span></div>
+      <div class="sep">:</div>
+      <div><b id="t-m">00</b><span data-fr="Min" data-en="Min">Min</span></div>
+      <div class="sep">:</div>
+      <div><b id="t-s">00</b><span data-fr="Sec" data-en="Sec">Sec</span></div>
+    </div>
+    <a class="btn btn-dark nc-btn" href="stages.html#reserver" data-fr="Réserver ma place" data-en="Book my place">Réserver ma place</a>
+    <p class="nc-note" data-fr="Journée tout compris · places limitées" data-en="All-inclusive day · limited places">Journée tout compris · places limitées</p>
+  </div>
+
+  <div class="home-min-links">
+    <a href="stages.html" data-fr="Nos stages" data-en="Our retreats">Nos stages</a>
+    <a href="reservation.html" data-fr="Nos cours" data-en="Our classes">Nos cours</a>
+    <a href="entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a>
+    <a href="historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+  </div>
+</main>
+
+<script src="auth.js"></script>
+<script src="script.js"></script>
+<script>
+  /* ── PROCHAIN STAGE + COMPTE À REBOURS ──
+     ✏️ Pour changer les dates : éditer ce tableau (et la page stages.html). */
+  const STAGES = [
+    { date: '2026-09-12T07:30:00', fr: 'Journée Perle — Signature', en: 'Perle Day — Signature' },
+    { date: '2026-10-03T07:30:00', fr: 'Journée Perle — Signature', en: 'Perle Day — Signature' },
+    { date: '2026-10-24T07:30:00', fr: 'Journée Perle — Automne',   en: 'Perle Day — Autumn' }
+  ];
+  const LIEU = { fr: "Hôtel de luxe · Côte d'Azur", en: 'Luxury hotel · French Riviera' };
+
+  function nextStage() {
+    const now = new Date();
+    const upcoming = STAGES.map(s => ({ ...s, d: new Date(s.date) }))
+                           .filter(s => s.d > now)
+                           .sort((a, b) => a.d - b.d);
+    return upcoming[0] || null;
+  }
+  const NC = nextStage();
+
+  function lang() { return localStorage.getItem('perle-lang') || 'fr'; }
+
+  function renderNC() {
+    const l = lang();
+    if (!NC) {
+      document.getElementById('ncTitle').textContent = l === 'en' ? 'New dates coming soon' : 'Nouvelles dates bientôt';
+      document.getElementById('ncMeta').textContent = LIEU[l];
+      document.getElementById('ncDate').textContent = l === 'en' ? 'Contact us to be informed' : 'Contactez-nous pour être informée';
+      const t = document.getElementById('timer'); if (t) t.style.display = 'none';
+      return;
+    }
+    document.getElementById('ncTitle').textContent = l === 'en' ? NC.en : NC.fr;
+    document.getElementById('ncMeta').textContent = LIEU[l];
+    document.getElementById('ncDate').textContent = NC.d.toLocaleDateString(l === 'en' ? 'en-GB' : 'fr-FR',
+      { weekday: 'long', day: 'numeric', month: 'long' }) + ' · 7h30 — 15h00';
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    if (!NC) return;
+    const diff = NC.d - new Date();
+    const d = Math.max(0, Math.floor(diff / 86400000));
+    const h = Math.max(0, Math.floor((diff % 86400000) / 3600000));
+    const m = Math.max(0, Math.floor((diff % 3600000) / 60000));
+    const s = Math.max(0, Math.floor((diff % 60000) / 1000));
+    document.getElementById('t-d').textContent = pad(d);
+    document.getElementById('t-h').textContent = pad(h);
+    document.getElementById('t-m').textContent = pad(m);
+    document.getElementById('t-s').textContent = pad(s);
+  }
+
+  renderNC(); tick(); setInterval(tick, 1000);
+  window.addEventListener('perlelang', renderNC);
+</script>
+</body>
+</html>
