@@ -123,6 +123,30 @@ document.addEventListener('DOMContentLoaded', () => {
 const PERLE_FORM_KEY = '';
 const PERLE_CONTACT  = 'contact@perleexperience.com';
 
+/* Liens de paiement Stripe — https://dashboard.stripe.com/payment-links
+   Un lien par produit, cree dans le tableau de bord Stripe, de la forme
+   https://buy.stripe.com/xxxxxxxx
+
+   Tant qu'un lien est vide, l'option « payer en ligne » correspondante
+   est masquee : la cliente ne tombe jamais sur un bouton de paiement mort,
+   et seule l'option sur place reste proposee. */
+const PERLE_STRIPE = {
+  pack1        : '',   /* Seance a l'unite */
+  pack6        : '',   /* Pack 6 seances */
+  pack12       : '',   /* Pack 12 seances */
+  stageTotal   : '',   /* Stage, montant integral */
+  stageAcompte : ''    /* Stage, acompte de 30 % */
+};
+
+/* Redirige vers Stripe si le lien existe. Renvoie true si la redirection
+   a ete declenchee, false s'il n'y a pas de lien configure. */
+function allerVersStripe(cle) {
+  const url = PERLE_STRIPE[cle];
+  if (!url) return false;
+  window.location.href = url;
+  return true;
+}
+
 function perleCorps(champs) {
   return Object.keys(champs)
     .filter(k => champs[k] !== '' && champs[k] != null)

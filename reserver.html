@@ -106,11 +106,17 @@
         <div class="form-group">
           <label data-fr="Comment souhaitez-vous régler ?" data-en="How would you like to pay?">Comment souhaitez-vous régler ?</label>
           <div class="pay-choice">
-            <label><input type="radio" name="paiement" value="Lien de paiement securise" checked><span data-fr="Par lien de paiement sécurisé" data-en="By secure payment link">Par lien de paiement sécurisé</span></label>
-            <label><input type="radio" name="paiement" value="Especes sur place"><span data-fr="En espèces sur place" data-en="Cash on site">En espèces sur place</span></label>
+            <label><input type="radio" name="paiement" value="Totalite en ligne" data-lien="stageTotal" checked><span data-fr="Payer la totalité en ligne" data-en="Pay in full online">Payer la totalité en ligne</span><em class="pay-montant" id="montantTotal"></em></label>
+            <label><input type="radio" name="paiement" value="Acompte 30% en ligne, solde en especes sur place" data-lien="stageAcompte"><span data-fr="Acompte de 30 % en ligne, solde en espèces sur place" data-en="30% deposit online, balance in cash on site">Acompte de 30 % en ligne, solde en espèces sur place</span><em class="pay-montant" id="montantAcompte"></em></label>
+            <label id="optRepli" style="display:none"><input type="radio" name="paiement" value="A convenir avec Perle"><span data-fr="Perle me transmet les modalités de règlement" data-en="Perle will send me the payment details">Perle me transmet les modalités de règlement</span></label>
           </div>
         </div>
         <div class="form-group"><label for="message" data-fr="Message (facultatif)" data-en="Message (optional)">Message (facultatif)</label><textarea id="message" name="message" placeholder="Allergies, régime alimentaire, niveau de pratique…"></textarea></div>
+        <p class="avis-annulation">
+          <span class="avis-delai" data-fr="7 jours" data-en="7 days">7 jours</span>
+          <span data-fr="Annulation sans frais jusqu’à 7 jours avant le stage. Au-delà, l’acompte de 30 % reste acquis — sauf maladie, deuil ou force majeure justifiés." data-en="Free cancellation up to 7 days before the retreat. After that, the 30% deposit is retained — except for documented illness, bereavement or force majeure.">Annulation sans frais jusqu’à 7 jours avant le stage. Au-delà, l’acompte de 30 % reste acquis — sauf maladie, deuil ou force majeure justifiés.</span>
+          <a href="annulation.html" data-fr="Conditions d’annulation" data-en="Cancellation terms">Conditions d’annulation</a>
+        </p>
         <button type="submit" class="btn btn-dark" style="width:100%" data-fr="Envoyer ma demande" data-en="Send my request">Envoyer ma demande</button>
         <div id="form-success" role="alert" style="display:none;padding:16px;background:rgba(75,46,32,.06);border-radius:12px;text-align:center;font-weight:600"></div>
       </form>
@@ -167,6 +173,38 @@
     document.getElementById('recapLieu').textContent  = l === 'en' ? infos.lieuEn : infos.lieuFr;
     document.getElementById('recapPrix').textContent  = infos.prix + (l === 'en' ? ' per person' : ' par personne');
     document.getElementById('refChoix').value = choix;
+
+    /* Montants : l'acompte vaut 30 % du prix du stage, arrondi a l'euro. */
+    var euros = parseFloat(String(infos.prix).replace(/[^0-9.,]/g, '').replace(',', '.'));
+    var tTotal = document.getElementById('montantTotal');
+    var tAcompte = document.getElementById('montantAcompte');
+    if (isFinite(euros) && tTotal && tAcompte) {
+      var acompte = Math.round(euros * 0.30);
+      var solde   = Math.round(euros) - acompte;
+      tTotal.textContent   = euros + ' \u20ac';
+      tAcompte.textContent = acompte + ' \u20ac ' + (l === 'en' ? 'now' : 'aujourd\u2019hui')
+                           + ' \u00b7 ' + solde + ' \u20ac ' + (l === 'en' ? 'on site' : 'sur place');
+    }
+
+    /* Une option de paiement en ligne sans lien Stripe configure serait un
+       bouton mort : on la masque tant que le lien n'existe pas. */
+    var proposees = 0;
+    document.querySelectorAll('.pay-choice input[data-lien]').forEach(function (r) {
+      var dispo = !!PERLE_STRIPE[r.getAttribute('data-lien')];
+      r.closest('label').style.display = dispo ? '' : 'none';
+      if (dispo) { proposees++; } else { r.checked = false; }
+    });
+    /* Aucun lien Stripe : on retombe sur une demande simple plutot que de
+       laisser le formulaire sans aucune option de reglement. */
+    var repli = document.getElementById('optRepli');
+    repli.style.display = proposees ? 'none' : '';
+    /* On ne laisse jamais la selection sur une option masquee : la cliente
+       enverrait un mode de reglement qu'elle n'a pas vu. */
+    var coche = document.querySelector('.pay-choice input:checked');
+    if (!coche || coche.closest('label').style.display === 'none') {
+      (proposees ? document.querySelector('.pay-choice input[data-lien]')
+                 : repli.querySelector('input')).checked = true;
+    }
   }
 
   function envoyer(e){
@@ -207,6 +245,15 @@
         ? '✓ Request sent. We confirm your place within 24 hours.'
         : '✓ Demande envoyée. Nous vous confirmons votre place sous 24h.';
       f.querySelectorAll('input, select, textarea, button').forEach(function(c){ c.disabled = true; });
+
+      /* Paiement en ligne : on bascule sur Stripe, qui encaisse et renvoie
+         vers merci.html. Sans lien configure, la demande part seule et
+         Perle reprend contact. */
+      var cle = mode ? mode.getAttribute('data-lien') : null;
+      if (cle && PERLE_STRIPE[cle]) {
+        ok.textContent += l === 'en' ? ' Redirecting to payment\u2026' : ' Redirection vers le paiement\u2026';
+        setTimeout(function () { allerVersStripe(cle); }, 1200);
+      }
     });
   }
 

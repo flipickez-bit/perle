@@ -75,7 +75,7 @@ h1, h2, h3, h4 { font-family: var(--ff-head); line-height: 1.15; font-weight: 50
 /* ── PANNEAUX FLOTTANTS (la signature) ── */
 .about, .formules, .lieux, .gallery, .testimonials, .reservation,
 .corp-intro, .corp-features, .corp-benefits, .newsletter, .cta-band, .account,
-.fondatrice, .suite-band, .tarifs {
+.fondatrice, .suite-band, .tarifs, .legal, .legal-resume {
   position: relative; z-index: 1;
   max-width: 1400px; margin: 20px auto; padding: 110px 0;
   border-radius: var(--r-panel); overflow: hidden;
@@ -1010,7 +1010,7 @@ footer { position: relative; z-index: 1; padding: 80px 0 34px; color: var(--ink)
 @media (max-width: 1100px) {
   .about, .formules, .lieux, .gallery, .testimonials, .reservation,
   .corp-intro, .corp-features, .corp-benefits, .newsletter, .cta-band, .account,
-  .fondatrice, .suite-band, .tarifs {
+  .fondatrice, .suite-band, .tarifs, .legal, .legal-resume {
     margin: 12px; padding: 84px 0; border-radius: 34px;
   }
   .container { padding: 0 28px; }
@@ -1102,4 +1102,65 @@ footer { position: relative; z-index: 1; padding: 80px 0 34px; color: var(--ink)
 @media (max-width: 560px) {
   .code-activation { padding: 22px 20px; }
   .code-row .btn { width: 100%; }
+}
+
+
+/* ── PAGE ANNULATION & REMBOURSEMENT ─────────────────────────── */
+.legal-resume { background: var(--pearl); padding: 70px 0; }
+.legal        { background: var(--pearl); padding: 80px 0 90px; }
+
+.resume-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.resume-card { padding: 34px 32px; border-radius: 26px;
+  background: rgba(230,215,184,.34); border: 1px solid rgba(75,46,32,.1); }
+.resume-delai { display: block; font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.6rem; line-height: 1; color: var(--shell); margin-bottom: 14px; }
+.resume-delai span { font-size: 1.05rem; font-family: 'Raleway', system-ui, sans-serif;
+  font-weight: 500; letter-spacing: .04em; }
+.resume-card h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.25rem;
+  color: var(--shell); margin: 0 0 10px; }
+.resume-card p { font-size: .95rem; font-weight: 300; line-height: 1.7; margin: 0; color: var(--ink); }
+
+.legal-bloc { max-width: 760px; margin: 0 0 46px; }
+.legal-bloc:last-of-type { margin-bottom: 0; }
+.legal-bloc h2 { display: flex; align-items: baseline; gap: 14px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; font-weight: 500;
+  color: var(--shell); margin: 0 0 16px; }
+.legal-num { flex: none; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--shell); color: var(--pearl); font-family: 'Raleway', system-ui, sans-serif;
+  font-size: .82rem; font-weight: 600; display: inline-flex; align-items: center;
+  justify-content: center; transform: translateY(-2px); }
+.legal-bloc p { font-size: .97rem; font-weight: 300; line-height: 1.85;
+  color: var(--ink); margin: 0 0 12px; padding-left: 46px; }
+.legal-bloc p:last-child { margin-bottom: 0; }
+.legal-bloc strong { font-weight: 600; color: var(--shell); }
+.legal-bloc a { color: var(--shell); text-decoration: underline; text-underline-offset: 3px; }
+
+.a-completer { background: rgba(248,193,204,.45); border-radius: 5px;
+  padding: 2px 7px; font-weight: 500; }
+
+.legal-maj { max-width: 760px; margin: 54px 0 0; padding-left: 46px;
+  font-size: .84rem; font-weight: 300; opacity: .6; font-style: italic; }
+
+@media (max-width: 760px) {
+  .resume-grid { grid-template-columns: 1fr; }
+  .legal-bloc h2 { font-size: 1.32rem; gap: 11px; }
+  .legal-bloc p, .legal-maj { padding-left: 0; }
+}
+
+
+/* ── Avis d'annulation avant validation ──────────────────────── */
+.avis-annulation { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 4px 0 20px; padding: 16px 18px; border-radius: 16px;
+  background: rgba(230,215,184,.42); border: 1px solid rgba(75,46,32,.12);
+  font-size: .88rem; font-weight: 300; line-height: 1.6; color: var(--ink); }
+.avis-delai { flex: none; padding: 4px 11px; border-radius: 999px;
+  background: var(--shell); color: var(--pearl);
+  font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.avis-annulation a { color: var(--shell); font-weight: 600; text-decoration: underline;
+  text-underline-offset: 3px; white-space: nowrap; }
+
+.pay-montant { margin-left: auto; padding-left: 12px; font-style: normal;
+  font-size: .86rem; font-weight: 600; color: var(--shell); white-space: nowrap; }
+@media (max-width: 560px) {
+  .pay-montant { flex-basis: 100%; margin-left: 29px; padding-left: 0; }
 }

@@ -91,7 +91,7 @@
       <div class="pay-mode">
         <span class="pay-mode-label" data-fr="Je réglerai" data-en="I will pay">Je réglerai</span>
         <div class="pay-choice">
-          <label><input type="radio" name="packPaiement" value="Lien de paiement securise" checked><span data-fr="Par lien de paiement sécurisé" data-en="By secure payment link">Par lien de paiement sécurisé</span></label>
+          <label><input type="radio" name="packPaiement" value="Lien de paiement securise" data-enligne="1" checked><span data-fr="Par lien de paiement sécurisé" data-en="By secure payment link">Par lien de paiement sécurisé</span></label>
           <label><input type="radio" name="packPaiement" value="Especes sur place"><span data-fr="En espèces sur place" data-en="Cash on site">En espèces sur place</span></label>
         </div>
       </div>
@@ -120,6 +120,12 @@
         </div>
       </div>
       <p id="buyMsg" style="margin-top:18px;font-weight:600;color:#4a7c48;min-height:1em"></p>
+
+      <p class="avis-annulation">
+        <span class="avis-delai" data-fr="14 jours" data-en="14 days">14 jours</span>
+        <span data-fr="La validité d’un pack démarre le jour de l’achat et les crédits non utilisés à l’échéance sont perdus. Vous disposez de 14 jours pour vous rétracter." data-en="A pack’s validity starts on the day of purchase and credits left unused at expiry are lost. You have 14 days to withdraw.">La validité d’un pack démarre le jour de l’achat et les crédits non utilisés à l’échéance sont perdus. Vous disposez de 14 jours pour vous rétracter.</span>
+        <a href="annulation.html" data-fr="Conditions d’annulation" data-en="Cancellation terms">Conditions d’annulation</a>
+      </p>
 
       <div class="code-activation">
         <h4 data-fr="J'ai reçu un code d'activation" data-en="I received an activation code">J'ai reçu un code d'activation</h4>
@@ -153,6 +159,7 @@
         <li><a href="stages.html" data-fr="Stages" data-en="Retreats">Stages</a></li>
         <li><a href="reservation.html" data-fr="Cours" data-en="Classes">Cours</a></li>
         <li><a href="historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a></li>
+        <li><a href="annulation.html" data-fr="Annulation &amp; remboursement" data-en="Cancellation &amp; refunds">Annulation &amp; remboursement</a></li>
       </ul></div>
       <div class="footer-col"><h4 data-fr="Découvrir" data-en="Discover">Découvrir</h4><ul>
         <li><a href="stages.html" data-fr="Journée Perle" data-en="Perle Day">Journée Perle</a></li>
@@ -258,6 +265,11 @@
       return r ? r.value : '';
     }
 
+    function paiementEnLigne() {
+      const r = document.querySelector('input[name=packPaiement]:checked');
+      return !!(r && r.dataset.enligne);
+    }
+
     /* Commander un pack : on prévient Perle, on ne crédite rien.
        Les crédits n'arrivent qu'avec le code, donc après règlement. */
     document.querySelectorAll('.pack [data-credits]').forEach(btn => {
@@ -281,13 +293,26 @@
           btn.disabled = false;
           btn.textContent = etiquette;
           m.style.color = r.ok ? '#4a7c48' : '#a33';
-          m.textContent = r.ok
-            ? (lang() === 'en'
-                ? '✓ Order sent. Perle will confirm and send you the payment details.'
-                : '✓ Commande envoyée. Perle vous confirme et vous transmet le règlement.')
-            : (lang() === 'en'
-                ? 'Sending failed. Please call 06 77 30 30 65.'
-                : "L'envoi a échoué. Appelez le 06 77 30 30 65.");
+          if (!r.ok) {
+            m.textContent = lang() === 'en'
+              ? 'Sending failed. Please call 06 77 30 30 65.'
+              : "L'envoi a échoué. Appelez le 06 77 30 30 65.";
+            setTimeout(() => { m.textContent = ''; }, 8000);
+            return;
+          }
+          /* Paiement en ligne : Stripe encaisse, puis Perle envoie le code
+             d'activation. Sans lien configure, la commande part seule. */
+          const cle = 'pack' + btn.getAttribute('data-credits');
+          if (paiementEnLigne() && PERLE_STRIPE[cle]) {
+            m.textContent = lang() === 'en'
+              ? '✓ Order sent. Redirecting to payment…'
+              : '✓ Commande envoyée. Redirection vers le paiement…';
+            setTimeout(() => allerVersStripe(cle), 1200);
+            return;
+          }
+          m.textContent = lang() === 'en'
+            ? '✓ Order sent. Perle will confirm and send you the payment details.'
+            : '✓ Commande envoyée. Perle vous confirme et vous transmet le règlement.';
           setTimeout(() => { m.textContent = ''; }, 8000);
         });
       });
