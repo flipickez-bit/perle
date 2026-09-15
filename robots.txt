@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /carte.html
 Disallow: /reserver.html
+
+Sitemap: https://perleexperience.com/sitemap.xml
