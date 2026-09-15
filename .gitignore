@@ -15,3 +15,6 @@ qr-perle-*.png
 logo-perle-*.png
 Logo-original.PNG
 nacre.png
+
+# Outil de developpement, pas un fichier du site
+version.py
