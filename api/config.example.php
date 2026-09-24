@@ -31,6 +31,12 @@ function config(): array
         'site_url'   => 'https://perleexperience.com',
         'contact'    => 'contact@perleexperience.com',
 
+        // Mot de passe a usage unique protegeant api/installer.php. Sans lui,
+        // quiconque trouverait l'adresse de l'installateur pourrait se creer
+        // l'acces administrateur avant vous. Inventez une suite de caracteres
+        // au hasard, puis supprimez installer.php une fois l'installation faite.
+        'jeton_installation' => 'REMPLACER_par_une_suite_aleatoire',
+
         // ── Paiement ─────────────────────────────────────────────────────
         // Laisser 'aucun' tant qu'aucun prestataire n'est choisi : le site
         // propose alors le règlement sur place, sans bouton de paiement mort.

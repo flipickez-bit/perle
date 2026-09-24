@@ -16,6 +16,11 @@ ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
 $racine = __DIR__;
+// Sans configuration, on le dit clairement plutot que de planter.
+if (!is_file($racine . '/config.php')) {
+    http_response_code(503);
+    exit("Le site n'est pas encore configure : api/config.php est absent.");
+}
 require $racine . '/config.php';
 require $racine . '/lib/reponse.php';
 require $racine . '/lib/bdd.php';

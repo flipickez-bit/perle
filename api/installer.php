@@ -12,6 +12,11 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
+// Sans configuration, on le dit clairement plutot que de planter.
+if (!is_file(__DIR__ . '/config.php')) {
+    http_response_code(503);
+    exit("Le site n'est pas encore configure : api/config.php est absent.");
+}
 require __DIR__ . '/config.php';
 require __DIR__ . '/lib/reponse.php';
 require __DIR__ . '/lib/bdd.php';
@@ -19,6 +24,16 @@ require __DIR__ . '/lib/auth.php';
 require __DIR__ . '/lib/credits.php';
 
 header('Content-Type: text/html; charset=utf-8');
+
+// Verrou : sans le jeton defini dans config.php, cette page ne fait rien.
+// C'est ce qui empeche un inconnu de creer l'administration a votre place
+// entre le moment ou la configuration existe et celui ou vous installez.
+$jeton = (string) (config()['jeton_installation'] ?? '');
+$fourni = (string) ($_GET['jeton'] ?? $_POST['jeton'] ?? '');
+if ($jeton === '' || !hash_equals($jeton, $fourni)) {
+    http_response_code(404);
+    exit('Introuvable.');
+}
 
 $message = '';
 $termine = false;
@@ -90,6 +105,7 @@ if ($adminExiste) {
     <?php if ($message !== ''): ?><div class="msg"><?= $message ?></div><?php endif; ?>
     <?php if (!$termine): ?>
     <form method="post">
+      <input type="hidden" name="jeton" value="<?= htmlspecialchars($fourni, ENT_QUOTES) ?>">
       <label for="prenom">Prénom</label>
       <input id="prenom" name="prenom" required value="<?= htmlspecialchars((string) ($_POST['prenom'] ?? ''), ENT_QUOTES) ?>">
       <label for="email">Email</label>
