@@ -18,3 +18,8 @@ nacre.png
 
 # Outil de developpement, pas un fichier du site
 version.py
+
+# Configuration locale et base de donnees de developpement
+api/config.php
+.donnees/
+_routeur_local.php
