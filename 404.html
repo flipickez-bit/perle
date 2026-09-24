@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page introuvable — Perle</title>
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#4B2E20">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=5">
+</head>
+<body>
+
+<div class="page-intro" id="pageIntro" aria-hidden="true"><img src="/logo-rose-petit.png" alt=""></div>
+
+<nav id="nav">
+  <div class="container nav-inner">
+    <a href="/index.html" class="nav-logo" aria-label="Perle — Accueil"><span class="nav-logo-text">Perle</span><img src="/logo-petit.png" alt="Perle logo"></a>
+    <div class="nav-links">
+      <a href="/index.html" data-fr="Accueil" data-en="Home">Accueil</a>
+      <a href="/stages.html" data-fr="Stages" data-en="Retreats">Stages</a>
+      <a href="/reservation.html" data-fr="Cours" data-en="Classes">Cours</a>
+      <a href="/entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a>
+      <a href="/historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+      <div class="lang-toggle" role="group" aria-label="Langue"><button onclick="setLang('fr')" aria-pressed="true">FR</button><button onclick="setLang('en')" aria-pressed="false">EN</button></div>
+    </div>
+    <button class="nav-burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <button class="mobile-close" id="mobileClose" aria-label="Fermer">✕</button>
+  <a href="/index.html" onclick="closeMobile()" data-fr="Accueil" data-en="Home">Accueil</a>
+  <a href="/stages.html" onclick="closeMobile()" data-fr="Stages" data-en="Retreats">Stages</a>
+  <a href="/reservation.html" onclick="closeMobile()" data-fr="Cours" data-en="Classes">Cours</a>
+  <a href="/entreprises.html" onclick="closeMobile()" data-fr="Entreprises" data-en="Business">Entreprises</a>
+  <a href="/historique.html" onclick="closeMobile()" data-fr="Notre historique" data-en="Our history">Notre historique</a>
+  <div class="lang-toggle"><button onclick="setLang('fr'); closeMobile()">FR</button><button onclick="setLang('en'); closeMobile()">EN</button></div>
+</div>
+
+
+<section class="erreur">
+  <div class="container">
+    <div class="erreur-inner fade-in">
+      <span class="erreur-code" aria-hidden="true">404</span>
+      <h1 data-fr="Cette page n’existe pas" data-en="This page does not exist">Cette page n’existe pas</h1>
+      <p data-fr="Le lien est peut-être ancien, ou l’adresse comporte une faute de frappe. Voici par où reprendre."
+         data-en="The link may be out of date, or the address contains a typo. Here is where to pick up.">
+        Le lien est peut-être ancien, ou l’adresse comporte une faute de frappe. Voici par où reprendre.
+      </p>
+
+      <div class="erreur-liens">
+        <a href="/stages.html">
+          <strong data-fr="Nos stages" data-en="Our retreats">Nos stages</strong>
+          <span data-fr="La journée Perle, de 7h30 à 15h" data-en="The Perle day, 7:30am to 3pm">La journée Perle, de 7h30 à 15h</span>
+        </a>
+        <a href="/reservation.html">
+          <strong data-fr="Nos cours" data-en="Our classes">Nos cours</strong>
+          <span data-fr="Planning, tarifs et réservation" data-en="Schedule, pricing and booking">Planning, tarifs et réservation</span>
+        </a>
+        <a href="/entreprises.html">
+          <strong data-fr="Entreprises" data-en="Business">Entreprises</strong>
+          <span data-fr="Bien-être au bureau et séminaires" data-en="Wellbeing at work and seminars">Bien-être au bureau et séminaires</span>
+        </a>
+        <a href="/historique.html">
+          <strong data-fr="Notre historique" data-en="Our history">Notre historique</strong>
+          <span data-fr="Le mot de la fondatrice" data-en="A word from the founder">Le mot de la fondatrice</span>
+        </a>
+      </div>
+
+      <a href="/" class="btn btn-dark" data-fr="Retour à l’accueil" data-en="Back to home">Retour à l’accueil</a>
+
+      <p class="erreur-aide" data-fr="Vous cherchiez quelque chose de précis ? Appelez-nous au 06 77 30 30 65."
+         data-en="Looking for something specific? Call us on +33 6 77 30 30 65.">
+        Vous cherchiez quelque chose de précis ? Appelez-nous au 06 77 30 30 65.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><div class="footer-logo"><img src="/logo-petit.png" alt="Perle"><span class="footer-logo-text">Perle</span></div>
+        <p data-fr="Stages d'une journée et cours de yoga et pilates dans les plus beaux lieux de la Côte d'Azur." data-en="One-day retreats and yoga & pilates classes in the most beautiful locations of the Riviera.">Stages d'une journée et cours de yoga et pilates dans les plus beaux lieux de la Côte d'Azur.</p></div>
+      <div class="footer-col"><h4 data-fr="Navigation" data-en="Navigation">Navigation</h4><ul>
+        <li><a href="/index.html" data-fr="Accueil" data-en="Home">Accueil</a></li>
+        <li><a href="/stages.html" data-fr="Stages" data-en="Retreats">Stages</a></li>
+        <li><a href="/reservation.html" data-fr="Cours" data-en="Classes">Cours</a></li>
+        <li><a href="/entreprises.html" data-fr="Entreprises" data-en="Business">Entreprises</a></li>
+        <li><a href="/historique.html" data-fr="Notre historique" data-en="Our history">Notre historique</a></li>
+        <li><a href="/annulation.html" data-fr="Annulation &amp; remboursement" data-en="Cancellation &amp; refunds">Annulation &amp; remboursement</a></li>
+      </ul></div>
+      <div class="footer-col"><h4 data-fr="Mon espace" data-en="My space">Mon espace</h4><ul>
+        <li><a href="/compte.html" data-fr="Mon profil" data-en="My profile">Mon profil</a></li>
+        <li><a href="/stages.html#reserver" data-fr="Réserver un stage" data-en="Book a retreat">Réserver un stage</a></li>
+      </ul></div>
+      <div class="footer-col"><h4 data-fr="Contact" data-en="Contact">Contact</h4><ul>
+        <li><a href="tel:+33677303065">06 77 30 30 65</a></li>
+        <li><a href="mailto:contact@perleexperience.com">contact@perleexperience.com</a></li>
+        <li><span data-fr="Côte d'Azur, France" data-en="French Riviera, France">Côte d'Azur, France</span></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p data-fr="© 2026 Perle. Tous droits réservés." data-en="© 2026 Perle. All rights reserved.">© 2026 Perle. Tous droits réservés.</p>
+      <nav class="footer-legal" aria-label="Informations légales">
+        <a href="/mentions-legales.html" data-fr="Mentions légales" data-en="Legal notice">Mentions légales</a>
+        <a href="/cgv.html" data-fr="CGV" data-en="Terms of sale">CGV</a>
+        <a href="/confidentialite.html" data-fr="Confidentialité" data-en="Privacy">Confidentialité</a>
+        <a href="/annulation.html" data-fr="Annulation" data-en="Cancellation">Annulation</a>
+      </nav>
+      <div class="footer-social"><a href="https://www.instagram.com/perle_cotedazur/" target="_blank" rel="noopener" aria-label="Instagram">IG</a><a href="https://www.facebook.com/profile.php?id=61571725617693" target="_blank" rel="noopener" aria-label="Facebook">FB</a><a href="https://www.tiktok.com/@perle.cotedazur?lang=fr" target="_blank" rel="noopener" aria-label="TikTok">TK</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="/auth.js?v=5"></script>
+<script src="/script.js?v=5"></script>
+</body>
+</html>

@@ -12,16 +12,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
 <!-- Animation d'arrivée : la perle roule une fois -->
-<div class="page-intro" id="pageIntro" aria-hidden="true"><img src="logo-rose.png" alt=""></div>
+<div class="page-intro" id="pageIntro" aria-hidden="true"><img src="logo-rose-petit.png" alt=""></div>
 
 <nav id="nav">
   <div class="container nav-inner">
-    <a href="index.html" class="nav-logo" aria-label="Perle — Accueil"><span class="nav-logo-text">Perle</span><img src="Logo.PNG" alt="Perle logo"></a>
+    <a href="index.html" class="nav-logo" aria-label="Perle — Accueil"><span class="nav-logo-text">Perle</span><img src="logo-petit.png" alt="Perle logo"></a>
     <div class="nav-links">
       <a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a>
       <a href="stages.html" data-fr="Stages" data-en="Retreats">Stages</a>
@@ -46,6 +46,7 @@
 
 <!-- Message si on arrive ici sans avoir choisi de date -->
 <section class="reservation" id="sansChoix" style="display:none">
+  <h1 class="sr-only" data-fr="Réserver un stage" data-en="Book a retreat">Réserver un stage</h1>
   <div class="container" style="text-align:center;max-width:620px">
     <span class="section-label" style="justify-content:center" data-fr="Réservation" data-en="Booking">Réservation</span>
     <h2 data-fr="Choisissez d'abord votre date" data-en="Choose your date first">Choisissez d'abord votre date</h2>
@@ -128,13 +129,19 @@
   <div class="container">
     <div class="footer-bottom" style="border:none;margin:0;padding:0">
       <p data-fr="© 2026 Perle. Tous droits réservés." data-en="© 2026 Perle. All rights reserved.">© 2026 Perle. Tous droits réservés.</p>
+      <nav class="footer-legal" aria-label="Informations légales">
+        <a href="mentions-legales.html" data-fr="Mentions légales" data-en="Legal notice">Mentions légales</a>
+        <a href="cgv.html" data-fr="CGV" data-en="Terms of sale">CGV</a>
+        <a href="confidentialite.html" data-fr="Confidentialité" data-en="Privacy">Confidentialité</a>
+        <a href="annulation.html" data-fr="Annulation" data-en="Cancellation">Annulation</a>
+      </nav>
       <div class="footer-social"><a href="https://www.instagram.com/perle_cotedazur/" target="_blank" rel="noopener" aria-label="Instagram">IG</a><a href="https://www.facebook.com/profile.php?id=61571725617693" target="_blank" rel="noopener" aria-label="Facebook">FB</a><a href="https://www.tiktok.com/@perle.cotedazur?lang=fr" target="_blank" rel="noopener" aria-label="TikTok">TK</a></div>
     </div>
   </div>
 </footer>
 
-<script src="auth.js?v=2"></script>
-<script src="script.js?v=2"></script>
+<script src="auth.js?v=5"></script>
+<script src="script.js?v=5"></script>
 <script>
   /* ── Catalogue des journées ──
      ✏️ Une seule liste à tenir à jour, partagée avec stages.html. */
@@ -157,7 +164,10 @@
   function langue(){ return localStorage.getItem('perle-lang') || 'fr'; }
 
   var choix = param('stage');
-  var infos = choix && STAGES[choix] ? STAGES[choix] : null;
+  /* Une journee deja passee ne doit pas ouvrir le formulaire : sinon un
+     ancien lien permet encore de reserver et de payer une date ecoulee. */
+  var dateDepassee = !!choix && new Date(choix + 'T23:59:59') < new Date();
+  var infos = (choix && !dateDepassee && STAGES[choix]) ? STAGES[choix] : null;
 
   function afficher(){
     var l = langue();
