@@ -16,12 +16,18 @@ ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
 $racine = __DIR__;
-// Sans configuration, on le dit clairement plutot que de planter.
-if (!is_file($racine . '/config.php')) {
+// La configuration se lit dans config.ini, un fichier texte simple : une
+// ligne mal ecrite y est sans consequence, la ou un config.php casse rend
+// tout le site inaccessible. config.php reste accepte pour ne pas rompre
+// une installation existante.
+if (is_file($racine . '/config.ini')) {
+    require $racine . '/lib/configuration.php';
+} elseif (is_file($racine . '/config.php')) {
+    require $racine . '/config.php';
+} else {
     http_response_code(503);
-    exit("Le site n'est pas encore configure : api/config.php est absent.");
+    exit("Le site n'est pas encore configure : api/config.ini est absent.");
 }
-require $racine . '/config.php';
 require $racine . '/lib/reponse.php';
 require $racine . '/lib/bdd.php';
 require $racine . '/lib/auth.php';

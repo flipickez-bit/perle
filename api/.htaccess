@@ -10,7 +10,7 @@
 
 # La configuration contient le mot de passe de la base et la cle Stripe :
 # elle ne doit jamais etre servie, meme si le PHP venait a ne plus s'executer.
-<FilesMatch "^config.*\.php$">
+<FilesMatch "^config.*\.(php|ini)$">
   Require all denied
 </FilesMatch>
 
