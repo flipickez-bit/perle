@@ -47,9 +47,19 @@ try {
     $brut = $e->getMessage();
     $c = config();
     if (str_contains($brut, '1045')) {
+        // La longueur lue dit si le collage a ete tronque par un caractere
+        // special, ou si le mot de passe est simplement faux cote MySQL.
+        $mdp = (string) $c['bdd_motdepasse'];
+        $n = strlen($mdp);
+        $suspect = strpbrk($mdp, "'\"\\") !== false;
         $cause = "L'utilisateur ou le mot de passe est refuse par MySQL. "
-               . "Verifiez <code>bdd_utilisateur</code> et <code>bdd_motdepasse</code>, "
-               . "et que l'utilisateur est bien rattache a la base dans hPanel.";
+               . "Verifiez que l'utilisateur est bien rattache a la base dans hPanel."
+               . "<br><br>Le mot de passe lu dans le fichier fait <strong>" . $n . " caractere(s)</strong>."
+               . ($n === 0 ? " Il est vide : la ligne n'a pas ete enregistree." : "")
+               . ($suspect ? " <strong>Il contient une apostrophe, un guillemet ou un antislash</strong> : "
+                           . "c'est presque surement ce qui casse la lecture." : "")
+               . " Si ce nombre ne correspond pas a la longueur reelle de votre mot de passe, "
+               . "c'est le fichier qu'il faut corriger ; sinon, c'est le mot de passe MySQL.";
     } elseif (str_contains($brut, '1049')) {
         $cause = "La base <code>" . htmlspecialchars((string) $c['bdd_nom'], ENT_QUOTES) . "</code> n'existe pas. "
                . "Le nom doit inclure le prefixe donne par Hostinger (u148476767_...).";
