@@ -75,7 +75,7 @@ h1, h2, h3, h4 { font-family: var(--ff-head); line-height: 1.15; font-weight: 50
 /* ── PANNEAUX FLOTTANTS (la signature) ── */
 .about, .formules, .lieux, .gallery, .testimonials, .reservation,
 .corp-intro, .corp-features, .corp-benefits, .newsletter, .cta-band, .account,
-.fondatrice, .suite-band, .tarifs, .legal, .legal-resume, .erreur {
+.fondatrice, .suite-band, .tarifs, .legal, .legal-resume, .erreur, .prive {
   position: relative; z-index: 1;
   max-width: 1400px; margin: 20px auto; padding: 110px 0;
   border-radius: var(--r-panel); overflow: hidden;
@@ -1010,7 +1010,7 @@ footer { position: relative; z-index: 1; padding: 80px 0 34px; color: var(--ink)
 @media (max-width: 1100px) {
   .about, .formules, .lieux, .gallery, .testimonials, .reservation,
   .corp-intro, .corp-features, .corp-benefits, .newsletter, .cta-band, .account,
-  .fondatrice, .suite-band, .tarifs, .legal, .legal-resume, .erreur {
+  .fondatrice, .suite-band, .tarifs, .legal, .legal-resume, .erreur, .prive {
     margin: 12px; padding: 84px 0; border-radius: 34px;
   }
   .container { padding: 0 28px; }
@@ -1232,3 +1232,29 @@ footer { position: relative; z-index: 1; padding: 80px 0 34px; color: var(--ink)
    visible change selon l'etat (connectee ou non), sans rien afficher. */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+
+/* ── SUR MESURE — la seule bulle rose du site ────────────────── */
+/* Elle tranche volontairement avec les panneaux creme : cette offre ne se
+   reserve pas en ligne, elle se demande. La difference de couleur porte
+   cette difference de nature. */
+.prive { background: var(--pink); padding: 78px 0; }
+.prive-inner { max-width: 660px; margin: 0 auto; text-align: center; }
+/* .85 et non .75 : sous ce seuil le contraste sur le rose tombe a
+   4,34:1, insuffisant pour un texte de cette taille. */
+.prive .section-label { color: var(--shell); opacity: .85; }
+.prive h2 { font-family: 'Playfair Display', Georgia, serif; font-weight: 500;
+  font-size: clamp(1.7rem, 4.5vw, 2.4rem); color: var(--shell); margin: 8px 0 16px; }
+.prive p { font-size: 1.02rem; font-weight: 300; line-height: 1.8;
+  color: var(--shell); opacity: .88; margin: 0 auto 32px; }
+.prive-actions { display: flex; gap: 22px; align-items: center;
+  justify-content: center; flex-wrap: wrap; }
+.prive-tel { font-size: .95rem; font-weight: 600; color: var(--shell);
+  text-decoration: none; border-bottom: 1px solid rgba(75,46,32,.35);
+  padding-bottom: 2px; }
+.prive-tel:hover { border-bottom-color: var(--shell); }
+
+@media (max-width: 640px) {
+  .prive { padding: 58px 0; }
+  .prive p { font-size: .97rem; }
+}

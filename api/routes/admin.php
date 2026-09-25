@@ -208,6 +208,37 @@ function routerAdmin(string $chemin): void
                ->execute([$statut, champEntier('reservation')]);
             json(['ok' => true]);
 
+        /**
+         * Supprime un compte et tout ce qui s'y rattache.
+         *
+         * Obligatoire au titre du droit a l'effacement : une cliente peut
+         * demander la suppression de ses donnees. Le dernier administrateur
+         * ne peut pas etre supprime, sans quoi plus personne ne pourrait
+         * entrer dans l'administration.
+         */
+        case '/compte/supprimer':
+            exigeMethode('POST');
+            $id = champEntier('cliente');
+            if ($id <= 0) erreur('Compte introuvable.', 404);
+
+            $st = $db->prepare('SELECT id, role, prenom, nom FROM clientes WHERE id = ?');
+            $st->execute([$id]);
+            $cible = $st->fetch();
+            if (!$cible) erreur('Compte introuvable.', 404);
+
+            if ($cible['role'] === 'admin') {
+                $autres = (int) $db->query("SELECT COUNT(*) FROM clientes WHERE role = 'admin'")->fetchColumn();
+                if ($autres <= 1) {
+                    erreur("Impossible : c'est le dernier compte administrateur.", 409);
+                }
+            }
+
+            // Les reservations, lots de credits et mouvements disparaissent
+            // avec le compte (ON DELETE CASCADE). Les paiements aussi : la
+            // comptabilite se tient hors du site, pas dans cette base.
+            $db->prepare('DELETE FROM clientes WHERE id = ?')->execute([$id]);
+            json(['ok' => true, 'supprime' => trim(($cible['prenom'] ?? '') . ' ' . ($cible['nom'] ?? ''))]);
+
         case '/desinscrire':
             exigeMethode('POST');
             $id = champEntier('reservation');
