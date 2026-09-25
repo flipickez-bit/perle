@@ -33,6 +33,10 @@ ErrorDocument 404 /404.html
   # rechargement immediat a chaque mise a jour.
   ExpiresByType text/css                "access plus 1 hour"
   ExpiresByType application/javascript  "access plus 1 hour"
+  # Les serveurs modernes annoncent le JavaScript en text/javascript :
+  # sans cette seconde ligne, la regle ci-dessus ne s'applique a rien
+  # et le navigateur garde l'ancien fichier pendant des jours.
+  ExpiresByType text/javascript         "access plus 1 hour"
   ExpiresByType image/jpeg              "access plus 6 months"
   ExpiresByType image/png               "access plus 6 months"
   ExpiresByType video/mp4               "access plus 6 months"
