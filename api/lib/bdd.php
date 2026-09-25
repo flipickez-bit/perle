@@ -55,6 +55,44 @@ function cle(): string
 }
 
 /**
+ * Colonne qui référence une clé primaire.
+ *
+ * MySQL exige un type strictement identique à celui de la colonne visée,
+ * signe compris : un INT signé pointant vers un INT UNSIGNED fait échouer
+ * la création de la table avec « Foreign key constraint is incorrectly
+ * formed ». SQLite ne verifie pas ce point, d'ou un bug invisible en test
+ * local et bloquant en production.
+ */
+function ref(): string
+{
+    return estSqlite() ? 'INTEGER' : 'INT UNSIGNED';
+}
+
+
+/**
+ * Crée un index s'il n'existe pas déjà.
+ *
+ * SQLite accepte CREATE INDEX IF NOT EXISTS, MySQL non : la requête y
+ * echoue purement et simplement. On tente donc la création et on ignore la
+ * seule erreur acceptable, celle de l'index déjà présent.
+ */
+function creerIndex(PDO $db, string $nom, string $table, string $colonnes, bool $unique = false): void
+{
+    $sql = 'CREATE ' . ($unique ? 'UNIQUE ' : '') . "INDEX $nom ON $table $colonnes";
+    try {
+        if (estSqlite()) {
+            $sql = 'CREATE ' . ($unique ? 'UNIQUE ' : '') . "INDEX IF NOT EXISTS $nom ON $table $colonnes";
+        }
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        // 1061 = index deja existant ; toute autre erreur doit remonter.
+        if (!str_contains($e->getMessage(), '1061')) {
+            throw $e;
+        }
+    }
+}
+
+/**
  * Crée les tables si elles n'existent pas.
  *
  * Les dates sont stockées en texte ISO 8601 (2026-10-03T07:30:00) : c'est
@@ -85,7 +123,7 @@ function creerTables(): void
     // pendant que d'autres, plus récents, sont utilisés à leur place.
     $db->exec("CREATE TABLE IF NOT EXISTS lots_credits (
         id          $k,
-        cliente_id  INT NOT NULL,
+        cliente_id  " . ref() . " NOT NULL,
         credits     INT NOT NULL,
         restants    INT NOT NULL,
         achete_le   VARCHAR(25) NOT NULL,
@@ -112,8 +150,8 @@ function creerTables(): void
 
     $db->exec("CREATE TABLE IF NOT EXISTS reservations (
         id             $k,
-        seance_id      INT NOT NULL,
-        cliente_id     INT NOT NULL,
+        seance_id      " . ref() . " NOT NULL,
+        cliente_id     " . ref() . " NOT NULL,
         statut         VARCHAR(12) NOT NULL DEFAULT 'confirmee',
         credits_utilises INT NOT NULL DEFAULT 0,
         montant_centimes INT NOT NULL DEFAULT 0,
@@ -123,24 +161,24 @@ function creerTables(): void
     )$suffixe");
 
     // Une même cliente ne peut pas réserver deux fois la même séance.
-    $db->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_resa_unique ON reservations (seance_id, cliente_id)");
+    creerIndex($db, 'idx_resa_unique', 'reservations', '(seance_id, cliente_id)', true);
 
     // Historique de tout mouvement de crédit fait à la main. Sans lui, un
     // solde modifié ne s'explique plus si une cliente conteste.
     $db->exec("CREATE TABLE IF NOT EXISTS mouvements_credits (
         id          $k,
-        cliente_id  INT NOT NULL,
+        cliente_id  " . ref() . " NOT NULL,
         delta       INT NOT NULL,
         motif       VARCHAR(255) NOT NULL,
         solde_apres INT NOT NULL,
-        admin_id    INT NULL,
+        admin_id    " . ref() . " NULL,
         cree_le     VARCHAR(25) NOT NULL,
         FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
     )$suffixe");
 
     $db->exec("CREATE TABLE IF NOT EXISTS paiements (
         id               $k,
-        cliente_id       INT NOT NULL,
+        cliente_id       " . ref() . " NOT NULL,
         fournisseur      VARCHAR(20) NOT NULL,
         reference        VARCHAR(190) NULL,
         objet            VARCHAR(30) NOT NULL,
@@ -152,8 +190,8 @@ function creerTables(): void
         FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
     )$suffixe");
 
-    $db->exec("CREATE INDEX IF NOT EXISTS idx_seances_debut ON seances (statut, debut)");
-    $db->exec("CREATE INDEX IF NOT EXISTS idx_lots_cliente ON lots_credits (cliente_id)");
+    creerIndex($db, 'idx_seances_debut', 'seances', '(statut, debut)');
+    creerIndex($db, 'idx_lots_cliente', 'lots_credits', '(cliente_id)');
 }
 
 /** Horodatage ISO, unique format employé dans toute la base. */
