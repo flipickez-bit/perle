@@ -73,13 +73,19 @@ try {
         $cause = "Le serveur de base de donnees est injoignable a l'adresse "
                . "<code>" . htmlspecialchars((string) $c['bdd_hote'], ENT_QUOTES) . "</code>.";
     } else {
-        $cause = 'Cause inconnue. Le detail a ete journalise.';
+        // Aucun cas connu : on montre le message de MySQL, qui nomme toujours
+        // precisement le probleme. Il ne contient pas le mot de passe, mais on
+        // le masque quand meme par precaution.
+        $sansMdp = $c['bdd_motdepasse'] !== ''
+            ? str_replace((string) $c['bdd_motdepasse'], '[masque]', $brut)
+            : $brut;
+        $cause = 'Message de MySQL : <code>' . htmlspecialchars($sansMdp, ENT_QUOTES) . '</code>';
     }
     echo '<div style="font-family:system-ui;max-width:560px;margin:3rem auto;padding:1.5rem;'
        . 'background:#fff;border-radius:16px;line-height:1.6">'
        . '<h2 style="color:#4B2E20;margin:0 0 .6rem">Connexion a la base impossible</h2>'
        . '<p>' . $cause . '</p>'
-       . '<p style="font-size:.85rem;opacity:.65">Valeurs lues dans api/config.php : base <code>'
+       . '<p style="font-size:.85rem;opacity:.65">Valeurs lues dans la configuration : base <code>'
        . htmlspecialchars((string) $c['bdd_nom'], ENT_QUOTES) . '</code>, utilisateur <code>'
        . htmlspecialchars((string) $c['bdd_utilisateur'], ENT_QUOTES) . '</code>, hote <code>'
        . htmlspecialchars((string) $c['bdd_hote'], ENT_QUOTES) . '</code>. '
