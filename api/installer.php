@@ -1,10 +1,14 @@
 <?php
 /**
- * Installation — à lancer une seule fois, puis à supprimer.
+ * Installation et dépannage.
  *
- * Crée les tables et le compte administrateur. Refuse de s'exécuter si un
- * administrateur existe déjà : sans ce verrou, quiconque trouverait
- * l'adresse de ce fichier pourrait se créer un accès complet.
+ * Crée les tables, puis le compte administrateur. Une fois celui-ci créé,
+ * la page sert à redéfinir son mot de passe — utile si Perle l'a oublié,
+ * puisqu'il n'existe aucune autre porte d'entrée.
+ *
+ * Supprimer ce fichier ne suffit pas à le neutraliser : il est suivi par
+ * Git, donc le déploiement suivant le remet en place. Pour le fermer
+ * définitivement, il faut vider `jeton_installation` dans config.ini.
  */
 
 declare(strict_types=1);
@@ -31,9 +35,8 @@ require __DIR__ . '/lib/credits.php';
 
 header('Content-Type: text/html; charset=utf-8');
 
-// Verrou : sans le jeton defini dans config.php, cette page ne fait rien.
-// C'est ce qui empeche un inconnu de creer l'administration a votre place
-// entre le moment ou la configuration existe et celui ou vous installez.
+// Verrou : sans le jeton defini dans config.ini, cette page se comporte
+// comme si elle n'existait pas. Vider le jeton la ferme pour de bon.
 $jeton = (string) (config()['jeton_installation'] ?? '');
 $fourni = (string) ($_GET['jeton'] ?? $_POST['jeton'] ?? '');
 if ($jeton === '' || !hash_equals($jeton, $fourni)) {
@@ -42,19 +45,15 @@ if ($jeton === '' || !hash_equals($jeton, $fourni)) {
 }
 
 $message = '';
-$termine = false;
+$succes  = false;
 
 try {
     creerTables();
-    $adminExiste = (int) bdd()->query("SELECT COUNT(*) FROM clientes WHERE role = 'admin'")->fetchColumn() > 0;
+    $admins = bdd()->query("SELECT id, email, prenom FROM clientes WHERE role = 'admin' ORDER BY id ASC")->fetchAll();
 } catch (Throwable $e) {
-    // MySQL dit precisement ce qui ne va pas : autant le traduire plutot que
-    // de laisser chercher au hasard. Le mot de passe n'est jamais affiche.
     $brut = $e->getMessage();
     $c = config();
     if (str_contains($brut, '1045')) {
-        // La longueur lue dit si le collage a ete tronque par un caractere
-        // special, ou si le mot de passe est simplement faux cote MySQL.
         $mdp = (string) $c['bdd_motdepasse'];
         $n = strlen($mdp);
         $suspect = strpbrk($mdp, "'\"\\") !== false;
@@ -62,20 +61,10 @@ try {
                . "Verifiez que l'utilisateur est bien rattache a la base dans hPanel."
                . "<br><br>Le mot de passe lu dans le fichier fait <strong>" . $n . " caractere(s)</strong>."
                . ($n === 0 ? " Il est vide : la ligne n'a pas ete enregistree." : "")
-               . ($suspect ? " <strong>Il contient une apostrophe, un guillemet ou un antislash</strong> : "
-                           . "c'est presque surement ce qui casse la lecture." : "")
-               . " Si ce nombre ne correspond pas a la longueur reelle de votre mot de passe, "
-               . "c'est le fichier qu'il faut corriger ; sinon, c'est le mot de passe MySQL.";
+               . ($suspect ? " Il contient une apostrophe, un guillemet ou un antislash." : "");
     } elseif (str_contains($brut, '1049')) {
-        $cause = "La base <code>" . htmlspecialchars((string) $c['bdd_nom'], ENT_QUOTES) . "</code> n'existe pas. "
-               . "Le nom doit inclure le prefixe donne par Hostinger (u148476767_...).";
-    } elseif (str_contains($brut, '2002') || str_contains($brut, '2005')) {
-        $cause = "Le serveur de base de donnees est injoignable a l'adresse "
-               . "<code>" . htmlspecialchars((string) $c['bdd_hote'], ENT_QUOTES) . "</code>.";
+        $cause = "La base <code>" . htmlspecialchars((string) $c['bdd_nom'], ENT_QUOTES) . "</code> n'existe pas.";
     } else {
-        // Aucun cas connu : on montre le message de MySQL, qui nomme toujours
-        // precisement le probleme. Il ne contient pas le mot de passe, mais on
-        // le masque quand meme par precaution.
         $sansMdp = $c['bdd_motdepasse'] !== ''
             ? str_replace((string) $c['bdd_motdepasse'], '[masque]', $brut)
             : $brut;
@@ -84,20 +73,14 @@ try {
     echo '<div style="font-family:system-ui;max-width:560px;margin:3rem auto;padding:1.5rem;'
        . 'background:#fff;border-radius:16px;line-height:1.6">'
        . '<h2 style="color:#4B2E20;margin:0 0 .6rem">Connexion a la base impossible</h2>'
-       . '<p>' . $cause . '</p>'
-       . '<p style="font-size:.85rem;opacity:.65">Valeurs lues dans la configuration : base <code>'
-       . htmlspecialchars((string) $c['bdd_nom'], ENT_QUOTES) . '</code>, utilisateur <code>'
-       . htmlspecialchars((string) $c['bdd_utilisateur'], ENT_QUOTES) . '</code>, hote <code>'
-       . htmlspecialchars((string) $c['bdd_hote'], ENT_QUOTES) . '</code>. '
-       . "Le mot de passe n'est pas affiche.</p></div>";
+       . '<p>' . $cause . '</p></div>';
     error_log('[perle][install] ' . $brut);
     exit;
 }
 
-if ($adminExiste) {
-    $termine = true;
-    $message = "L'installation est déjà faite. <strong>Supprimez ce fichier</strong> (api/installer.php).";
-} elseif (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+$existe = count($admins) > 0;
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $email  = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
     $mdp    = (string) ($_POST['motdepasse'] ?? '');
     $prenom = trim((string) ($_POST['prenom'] ?? ''));
@@ -106,17 +89,28 @@ if ($adminExiste) {
         $message = 'Adresse email invalide.';
     } elseif ($m = motDePasseValide($mdp)) {
         $message = $m;
-    } elseif ($prenom === '') {
+    } elseif (!$existe && $prenom === '') {
         $message = 'Indiquez un prénom.';
     } else {
-        $st = bdd()->prepare(
-            'INSERT INTO clientes (email, motdepasse_hash, prenom, role, actif, cree_le)
-             VALUES (?, ?, ?, \'admin\', 1, ?)'
-        );
-        $st->execute([$email, password_hash($mdp, PASSWORD_DEFAULT), $prenom, maintenant()]);
-        $termine = true;
-        $message = "Compte administrateur créé. <strong>Supprimez maintenant ce fichier</strong> "
-                 . "(api/installer.php), puis connectez-vous.";
+        $hash = password_hash($mdp, PASSWORD_DEFAULT);
+        $st = bdd()->prepare('SELECT id FROM clientes WHERE email = ?');
+        $st->execute([$email]);
+        $trouve = $st->fetch();
+
+        if ($trouve) {
+            // Le compte existe : on redéfinit son mot de passe et on s'assure
+            // qu'il est bien administrateur et actif.
+            bdd()->prepare("UPDATE clientes SET motdepasse_hash = ?, role = 'admin', actif = 1 WHERE id = ?")
+                 ->execute([$hash, $trouve['id']]);
+            $message = 'Mot de passe redéfini. Vous pouvez vous connecter.';
+        } else {
+            bdd()->prepare(
+                "INSERT INTO clientes (email, motdepasse_hash, prenom, role, actif, cree_le)
+                 VALUES (?, ?, ?, 'admin', 1, ?)"
+            )->execute([$email, $hash, $prenom !== '' ? $prenom : 'Perle', maintenant()]);
+            $message = 'Compte administrateur créé. Vous pouvez vous connecter.';
+        }
+        $succes = true;
     }
 }
 ?>
@@ -130,37 +124,71 @@ if ($adminExiste) {
 <style>
   body { font-family: system-ui, sans-serif; background:#FDF6EE; color:#2C2C2A;
          display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; padding:20px; }
-  .boite { max-width:440px; width:100%; background:#fff; border:1px solid rgba(75,46,32,.14);
+  .boite { max-width:460px; width:100%; background:#fff; border:1px solid rgba(75,46,32,.14);
            border-radius:18px; padding:30px 28px; }
   h1 { font-size:1.3rem; color:#4B2E20; margin:0 0 6px; }
-  p.sous { margin:0 0 22px; font-size:.9rem; opacity:.7; }
-  label { display:block; font-size:.76rem; text-transform:uppercase; letter-spacing:.08em;
+  p.sous { margin:0 0 22px; font-size:.9rem; opacity:.7; line-height:1.5; }
+  label { display:block; font-size:.74rem; text-transform:uppercase; letter-spacing:.08em;
           font-weight:600; color:#4B2E20; margin-bottom:5px; }
   input { width:100%; box-sizing:border-box; padding:11px 13px; margin-bottom:16px;
           border:1px solid rgba(75,46,32,.2); border-radius:10px; font-size:.95rem; }
   button { width:100%; padding:13px; background:#4B2E20; color:#FDF6EE; border:none;
-           border-radius:999px; font-size:.9rem; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; }
+           border-radius:999px; font-size:.85rem; letter-spacing:.06em; text-transform:uppercase;
+           font-weight:600; cursor:pointer; }
   .msg { padding:12px 14px; border-radius:10px; background:rgba(248,193,204,.35);
          font-size:.88rem; margin-bottom:18px; line-height:1.5; }
+  .msg.ok { background:rgba(230,215,184,.5); }
+  .apres { margin-top:20px; font-size:.82rem; opacity:.75; line-height:1.55;
+           border-top:1px solid rgba(75,46,32,.12); padding-top:16px; }
+  code { background:rgba(75,46,32,.07); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  .comptes { font-size:.82rem; opacity:.7; margin:-10px 0 18px; }
+  a { color:#4B2E20; }
 </style>
 </head>
 <body>
   <div class="boite">
-    <h1>Installation de Perle</h1>
-    <p class="sous">Création des tables et du compte administrateur.</p>
-    <?php if ($message !== ''): ?><div class="msg"><?= $message ?></div><?php endif; ?>
-    <?php if (!$termine): ?>
+    <h1><?= $existe ? 'Reprendre la main' : 'Installation de Perle' ?></h1>
+    <p class="sous">
+      <?= $existe
+        ? "Un compte administrateur existe deja. Saisissez son adresse et un nouveau mot de passe pour le redefinir."
+        : "Creation des tables et du compte administrateur." ?>
+    </p>
+
+    <?php if ($existe && !$succes): ?>
+      <p class="comptes">Compte enregistre :
+        <?php foreach ($admins as $a): ?>
+          <code><?= htmlspecialchars($a['email'], ENT_QUOTES) ?></code>
+        <?php endforeach; ?>
+      </p>
+    <?php endif; ?>
+
+    <?php if ($message !== ''): ?>
+      <div class="msg<?= $succes ? ' ok' : '' ?>"><?= htmlspecialchars($message, ENT_QUOTES) ?></div>
+    <?php endif; ?>
+
+    <?php if (!$succes): ?>
     <form method="post">
       <input type="hidden" name="jeton" value="<?= htmlspecialchars($fourni, ENT_QUOTES) ?>">
-      <label for="prenom">Prénom</label>
-      <input id="prenom" name="prenom" required value="<?= htmlspecialchars((string) ($_POST['prenom'] ?? ''), ENT_QUOTES) ?>">
+      <?php if (!$existe): ?>
+        <label for="prenom">Prenom</label>
+        <input id="prenom" name="prenom" required>
+      <?php endif; ?>
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" required value="<?= htmlspecialchars((string) ($_POST['email'] ?? ''), ENT_QUOTES) ?>">
-      <label for="motdepasse">Mot de passe (8 caractères minimum)</label>
+      <input id="email" name="email" type="email" required
+             value="<?= htmlspecialchars((string) ($_POST['email'] ?? ($admins[0]['email'] ?? '')), ENT_QUOTES) ?>">
+      <label for="motdepasse">Nouveau mot de passe (8 caracteres minimum)</label>
       <input id="motdepasse" name="motdepasse" type="password" required autocomplete="new-password">
-      <button type="submit">Créer l'administration</button>
+      <button type="submit"><?= $existe ? 'Redefinir le mot de passe' : "Creer l'administration" ?></button>
     </form>
+    <?php else: ?>
+      <p><a href="/admin/">Aller a l'administration &rarr;</a></p>
     <?php endif; ?>
+
+    <p class="apres">
+      <strong>Quand vous avez termine :</strong> ouvrez <code>api/config.ini</code> et laissez la ligne
+      <code>jeton_installation&nbsp;=</code> vide. Cette page deviendra alors definitivement
+      inaccessible. Supprimer le fichier ne suffit pas : le deploiement le remet en place.
+    </p>
   </div>
 </body>
 </html>
