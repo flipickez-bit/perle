@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration — Perle</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#4B2E20">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+
+<!-- ── Connexion ─────────────────────────────────────────────────────── -->
+<section id="vueConnexion" class="connexion" hidden>
+  <form class="carte-connexion" id="formConnexion" novalidate>
+    <img src="/logo-petit.png" alt="" width="54" height="54">
+    <h1>Administration</h1>
+    <p class="sous">Réservé à Perle.</p>
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required autocomplete="username">
+    <label for="motdepasse">Mot de passe</label>
+    <input id="motdepasse" name="motdepasse" type="password" required autocomplete="current-password">
+    <button type="submit" class="bouton">Se connecter</button>
+    <p class="erreur" id="erreurConnexion" role="alert"></p>
+  </form>
+</section>
+
+<!-- ── Administration ────────────────────────────────────────────────── -->
+<div id="vueAdmin" hidden>
+  <header class="entete">
+    <div class="entete-gauche">
+      <img src="/logo-petit.png" alt="" width="34" height="34">
+      <span class="marque">Perle</span>
+      <span class="badge">Administration</span>
+    </div>
+    <div class="entete-droite">
+      <a href="/" class="lien-discret">Voir le site</a>
+      <button type="button" class="lien-discret" id="boutonDeconnexion">Se déconnecter</button>
+    </div>
+  </header>
+
+  <nav class="onglets" aria-label="Sections">
+    <a href="#planning" data-onglet="planning">Planning</a>
+    <a href="#clientes" data-onglet="clientes">Clientes</a>
+  </nav>
+
+  <main class="contenu">
+    <!-- Planning -->
+    <section id="ongletPlanning" class="onglet-vue">
+      <div class="titre-ligne">
+        <h2>Cours &amp; stages</h2>
+        <button type="button" class="bouton" id="boutonNouvelle">Nouvelle séance</button>
+      </div>
+      <div id="listePlanning" class="chargement">Chargement…</div>
+    </section>
+
+    <!-- Clientes -->
+    <section id="ongletClientes" class="onglet-vue" hidden>
+      <div class="titre-ligne">
+        <h2>Clientes</h2>
+        <input type="search" id="rechercheCliente" placeholder="Rechercher un nom, un email…" aria-label="Rechercher une cliente">
+      </div>
+      <div id="listeClientes" class="chargement">Chargement…</div>
+    </section>
+
+    <!-- Fiche d'une séance -->
+    <section id="ongletSeance" class="onglet-vue" hidden>
+      <button type="button" class="retour" id="boutonRetour">← Retour au planning</button>
+      <div id="ficheSeance"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ── Formulaire de séance, en panneau latéral ──────────────────────── -->
+<div class="voile" id="voile" hidden></div>
+<aside class="panneau" id="panneauSeance" hidden aria-label="Séance">
+  <form id="formSeance" novalidate>
+    <div class="panneau-entete">
+      <h2 id="titrePanneau">Nouvelle séance</h2>
+      <button type="button" class="fermer" id="fermerPanneau" aria-label="Fermer">✕</button>
+    </div>
+
+    <input type="hidden" name="id" id="champId">
+
+    <div class="duo">
+      <label>Format
+        <select name="type" id="champType">
+          <option value="cours">Cours</option>
+          <option value="stage">Stage</option>
+        </select>
+      </label>
+      <label>Discipline
+        <select name="discipline" id="champDiscipline">
+          <option>Yoga</option><option>Pilates</option><option>Méditation</option>
+          <option>Respiration</option><option>Barre</option><option>Stretching</option>
+        </select>
+      </label>
+    </div>
+
+    <label>Titre
+      <input name="titre" id="champTitre" required placeholder="Pilates au lever du soleil">
+    </label>
+
+    <label>Lieu
+      <input name="lieu" id="champLieu" required placeholder="Hôtel Belles Rives, Antibes">
+    </label>
+
+    <div class="duo">
+      <label>Date
+        <input type="date" name="date" id="champDate" required>
+      </label>
+      <div class="duo">
+        <label>Début <input type="time" name="heureDebut" id="champHeureDebut" required></label>
+        <label>Fin <input type="time" name="heureFin" id="champHeureFin" required></label>
+      </div>
+    </div>
+
+    <div class="duo">
+      <label>Places
+        <input type="number" name="capacite" id="champCapacite" min="1" required placeholder="12">
+      </label>
+      <label>Coût en crédits
+        <input type="number" name="cout_credits" id="champCout" min="0" value="1">
+      </label>
+    </div>
+
+    <label>Prix en euros
+      <input type="number" name="prix" id="champPrix" min="0" step="1" value="0">
+      <span class="aide">Pour un stage réglé directement. Laissez 0 pour un cours payé en crédits.</span>
+    </label>
+
+    <label>Description
+      <textarea name="description" id="champDescription" rows="3" placeholder="Déroulé, niveau, matériel fourni…"></textarea>
+    </label>
+
+    <label>Statut
+      <select name="statut" id="champStatut">
+        <option value="brouillon">Brouillon — invisible sur le site</option>
+        <option value="publiee">Publiée — réservable</option>
+        <option value="annulee">Annulée</option>
+      </select>
+    </label>
+
+    <p class="erreur" id="erreurSeance" role="alert"></p>
+
+    <div class="panneau-actions">
+      <button type="submit" class="bouton" id="boutonEnregistrer">Publier</button>
+      <button type="button" class="bouton-danger" id="boutonSupprimer" hidden>Supprimer</button>
+    </div>
+  </form>
+</aside>
+
+<div class="message" id="message" role="status" hidden></div>
+
+<script src="admin.js?v=1"></script>
+</body>
+</html>

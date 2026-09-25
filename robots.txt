@@ -2,5 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /carte.html
 Disallow: /reserver.html
+Disallow: /admin/
+Disallow: /api/
 
 Sitemap: https://perleexperience.com/sitemap.xml

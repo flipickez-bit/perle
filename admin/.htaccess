@@ -1,0 +1,4 @@
+# L'administration ne doit jamais etre indexee.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
