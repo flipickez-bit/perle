@@ -42,9 +42,33 @@ try {
     creerTables();
     $adminExiste = (int) bdd()->query("SELECT COUNT(*) FROM clientes WHERE role = 'admin'")->fetchColumn() > 0;
 } catch (Throwable $e) {
-    echo '<p style="font-family:system-ui;padding:2rem">La base de données est injoignable. '
-       . 'Vérifiez les identifiants dans <code>api/config.php</code>.</p>';
-    error_log('[perle][install] ' . $e->getMessage());
+    // MySQL dit precisement ce qui ne va pas : autant le traduire plutot que
+    // de laisser chercher au hasard. Le mot de passe n'est jamais affiche.
+    $brut = $e->getMessage();
+    $c = config();
+    if (str_contains($brut, '1045')) {
+        $cause = "L'utilisateur ou le mot de passe est refuse par MySQL. "
+               . "Verifiez <code>bdd_utilisateur</code> et <code>bdd_motdepasse</code>, "
+               . "et que l'utilisateur est bien rattache a la base dans hPanel.";
+    } elseif (str_contains($brut, '1049')) {
+        $cause = "La base <code>" . htmlspecialchars((string) $c['bdd_nom'], ENT_QUOTES) . "</code> n'existe pas. "
+               . "Le nom doit inclure le prefixe donne par Hostinger (u148476767_...).";
+    } elseif (str_contains($brut, '2002') || str_contains($brut, '2005')) {
+        $cause = "Le serveur de base de donnees est injoignable a l'adresse "
+               . "<code>" . htmlspecialchars((string) $c['bdd_hote'], ENT_QUOTES) . "</code>.";
+    } else {
+        $cause = 'Cause inconnue. Le detail a ete journalise.';
+    }
+    echo '<div style="font-family:system-ui;max-width:560px;margin:3rem auto;padding:1.5rem;'
+       . 'background:#fff;border-radius:16px;line-height:1.6">'
+       . '<h2 style="color:#4B2E20;margin:0 0 .6rem">Connexion a la base impossible</h2>'
+       . '<p>' . $cause . '</p>'
+       . '<p style="font-size:.85rem;opacity:.65">Valeurs lues dans api/config.php : base <code>'
+       . htmlspecialchars((string) $c['bdd_nom'], ENT_QUOTES) . '</code>, utilisateur <code>'
+       . htmlspecialchars((string) $c['bdd_utilisateur'], ENT_QUOTES) . '</code>, hote <code>'
+       . htmlspecialchars((string) $c['bdd_hote'], ENT_QUOTES) . '</code>. '
+       . 'Le mot de passe n'est pas affiche.</p></div>';
+    error_log('[perle][install] ' . $brut);
     exit;
 }
 
