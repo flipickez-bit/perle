@@ -1234,27 +1234,23 @@ footer { position: relative; z-index: 1; padding: 80px 0 34px; color: var(--ink)
   overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 
 
-/* ── SUR MESURE — la seule bulle rose du site ────────────────── */
-/* Elle tranche volontairement avec les panneaux creme : cette offre ne se
-   reserve pas en ligne, elle se demande. La difference de couleur porte
-   cette difference de nature. */
-.prive { background: var(--pink); padding: 78px 0; }
-.prive-inner { max-width: 660px; margin: 0 auto; text-align: center; }
-/* .85 et non .75 : sous ce seuil le contraste sur le rose tombe a
-   4,34:1, insuffisant pour un texte de cette taille. */
-.prive .section-label { color: var(--shell); opacity: .85; }
-.prive h2 { font-family: 'Playfair Display', Georgia, serif; font-weight: 500;
-  font-size: clamp(1.7rem, 4.5vw, 2.4rem); color: var(--shell); margin: 8px 0 16px; }
-.prive p { font-size: 1.02rem; font-weight: 300; line-height: 1.8;
-  color: var(--shell); opacity: .88; margin: 0 auto 32px; }
-.prive-actions { display: flex; gap: 22px; align-items: center;
-  justify-content: center; flex-wrap: wrap; }
-.prive-tel { font-size: .95rem; font-weight: 600; color: var(--shell);
-  text-decoration: none; border-bottom: 1px solid rgba(75,46,32,.35);
-  padding-bottom: 2px; }
-.prive-tel:hover { border-bottom-color: var(--shell); }
+/* ── CARTE SUR MESURE — la seule carte rose ──────────────────── */
+/* Elle prend la forme d'une vraie carte pour etre lue dans le meme
+   mouvement que les dates, mais sa couleur dit qu'elle est d'une autre
+   nature : elle ne se reserve pas, elle se demande. */
+.carte-sur-mesure { background: var(--pink) !important; border-color: rgba(75,46,32,.18) !important; }
+.carte-sur-mesure h3, .carte-sur-mesure h4 { color: var(--shell); }
+.carte-sur-mesure .cc-tier,
+.carte-sur-mesure .stage-places { background: rgba(75,46,32,.14); color: var(--shell); }
+.carte-sur-mesure .cc-time,
+.carte-sur-mesure .stage-lieu,
+.carte-sur-mesure .stage-hours { color: var(--shell); opacity: .82; }
+.carte-sur-mesure .cc-date .d,
+.carte-sur-mesure .stage-date b { color: var(--shell); }
+.carte-sur-mesure .cc-date .m,
+.carte-sur-mesure .stage-date span { color: var(--shell); opacity: .7; }
+.carte-sur-mesure .stage-price small { color: var(--shell); opacity: .85; }
 
-@media (max-width: 640px) {
-  .prive { padding: 58px 0; }
-  .prive p { font-size: .97rem; }
-}
+/* Message affiche quand aucun cours n'est programme */
+.planning-vide { max-width: 560px; margin: 18px auto 0; text-align: center;
+  font-size: .95rem; font-weight: 300; line-height: 1.7; color: var(--ink); opacity: .7; }

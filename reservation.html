@@ -29,7 +29,7 @@
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
- <link rel="stylesheet" href="styles.css?v=9">
+ <link rel="stylesheet" href="styles.css?v=11">
  <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -105,6 +105,11 @@
  </div>
 
  <div class="schedule" id="schedule"></div>
+    <p class="planning-vide" id="planningVide" hidden
+       data-fr="Aucun cours programmé pour l’instant. Écrivez-nous pour être prévenue dès l’ouverture des prochains créneaux."
+       data-en="No classes scheduled yet. Write to us to hear about the next slots first.">
+      Aucun cours programmé pour l’instant. Écrivez-nous pour être prévenue dès l’ouverture des prochains créneaux.
+    </p>
  <p class="book-msg" id="bookMsg"></p>
 
  <p class="book-note">
@@ -119,24 +124,7 @@
 </section>
 
 <!-- TARIFS -->
-<!-- SUR MESURE -->
-<section class="prive">
-  <div class="container">
-    <div class="prive-inner fade-in">
-      <span class="section-label" data-fr="Sur mesure" data-en="Bespoke">Sur mesure</span>
-      <h2 data-fr="Un cours pour vous seule" data-en="A class of your own">Un cours pour vous seule</h2>
-      <p data-fr="Chez vous, dans votre jardin, ou dans un lieu que nous choisissons ensemble. Seule ou entre amies, avec un professeur rien que pour vous et un rythme qui vous ressemble."
-         data-en="At your home, in your garden, or in a venue we choose together. Alone or with friends, with a teacher just for you and a pace that suits you.">
-        Chez vous, dans votre jardin, ou dans un lieu que nous choisissons ensemble. Seule ou entre amies, avec un professeur rien que pour vous et un rythme qui vous ressemble.
-      </p>
-      <div class="prive-actions">
-        <a href="mailto:contact@perleexperience.com?subject=Demande%20de%20cours%20priv%C3%A9" class="btn btn-dark"
-           data-fr="Demander un devis" data-en="Request a quote">Demander un devis</a>
-        <a href="tel:+33677303065" class="prive-tel">06 77 30 30 65</a>
-      </div>
-    </div>
-  </div>
-</section>
+
 <section class="tarifs">
  <div class="container">
  <div class="section-head fade-in">
@@ -220,109 +208,141 @@
  </div>
 </footer>
 
-<script src="auth.js?v=9"></script>
-<script src="script.js?v=9"></script>
+<script src="script.js?v=11"></script>
+<script src="perle-api.js?v=9"></script>
 <script>
- /* ── PLANNING DES COURS ── */
- /* Tous les cours sont au même tarif : 1 crédit la séance.
- L'étiquette indique simplement la discipline. */
- const TEMPLATE = [
- { time: '08:00', disc: 'Yoga', lieu: 'Plage de la Promenade' },
- { time: '12:30', disc: 'Pilates', lieu: 'Jardins Albert 1er' },
- { time: '18:30', disc: 'Yoga', lieu: 'Parc du Château' },
- { time: '09:30', disc: 'Pilates', lieu: 'Villa privée · collines' },
- { time: '19:00', disc: 'Yoga', lieu: 'Hôtel Negresco' }
- ];
- function lang() { return localStorage.getItem('perle-lang') || 'fr'; }
- function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
+  /* ── PLANNING DES COURS ────────────────────────────────────────────
+     Les creneaux viennent de la base : ce qui est publie dans
+     l'administration apparait ici, rien d'autre. Le serveur ne renvoie
+     que les seances a venir, une date passee disparait donc seule. */
 
- /* Génère les ~10 prochains créneaux à venir */
- function buildSchedule() {
- const out = []; const now = new Date();
- for (let day = 0; day < 7 && out.length < 10; day++) {
- for (let i = 0; i < TEMPLATE.length && out.length < 10; i++) {
- const idx = (day + i) % TEMPLATE.length;
- const t = TEMPLATE[idx];
- const [h, m] = t.time.split(':').map(Number);
- const d = new Date(now); d.setDate(now.getDate() + day); d.setHours(h, m, 0, 0);
- if (d <= now) continue;
- out.push({ id: d.toISOString().slice(0, 10) + '_' + t.time + '_' + slug(t.lieu), date: d, time: t.time, disc: t.disc, lieu: t.lieu });
- }
- }
- out.sort((a, b) => a.date - b.date);
- return out.slice(0, 10);
- }
- let SCHEDULE = buildSchedule();
+  var COURS = [];
+  var compte = null;
+  var coursEnAttente = null;
 
- function renderBanner() {
- const u = Perle.getUser();
- document.getElementById('bbCredits').textContent = u ? Perle.soldeValide() : 0;
- }
+  function l() { return perleLangue(); }
 
- function renderSchedule() {
- const l = lang();
- const sc = document.getElementById('schedule');
- sc.innerHTML = SCHEDULE.map(c => {
- const booked = Perle.hasBooked(c.id);
- const day = c.date.toLocaleDateString(l === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric' });
- const mon = c.date.toLocaleDateString(l === 'en' ? 'en-GB' : 'fr-FR', { weekday: 'short', month: 'short' });
- const btn = booked
- ? '<span class="btn btn-dark btn-sm">' + (l === 'en' ? 'Booked ✓' : 'Réservé ✓') + '</span>'
- : '<button class="btn btn-dark btn-sm" data-id="' + c.id + '">' + (l === 'en' ? 'Book (1)' : 'Réserver (1)') + '</button>';
- return '<div class="class-card' + (booked ? ' booked' : '') + '">' +
- '<div class="cc-date"><span class="d">' + day + '</span><span class="m">' + mon + '</span></div>' +
- '<div class="cc-info"><span class="cc-tier">' + c.disc + '</span>' +
- '<h4>' + c.lieu + '</h4>' +
- '<div class="cc-time">' + c.time + '</div></div>' +
- '<div class="cc-action">' + btn + '</div></div>';
- }).join('');
- sc.querySelectorAll('button[data-id]').forEach(b => b.addEventListener('click', () => bookClass(b.getAttribute('data-id'))));
- }
+  function message(texte, classe) {
+    var m = document.getElementById('bookMsg');
+    m.textContent = texte;
+    m.className = 'book-msg ' + (classe || '');
+  }
 
- function msg(text, cls) { const m = document.getElementById('bookMsg'); m.textContent = text; m.className = 'book-msg ' + (cls || ''); }
+  /* Carte du sur-mesure : meme forme qu'un creneau, couleur differente.
+     Elle ne se reserve pas, elle se demande — d'ou le rose. */
+  function carteSurMesureCours() {
+    var en = l() === 'en';
+    return '<div class="class-card carte-sur-mesure">'
+      + '<div class="cc-date"><span class="d">\u2014</span><span class="m">'
+      + (en ? 'your date' : 'votre date') + '</span></div>'
+      + '<div class="cc-info"><span class="cc-tier">' + (en ? 'Bespoke' : 'Sur mesure') + '</span>'
+      + '<h4>' + (en ? 'Your own private class' : 'Votre cours priv\u00e9') + '</h4>'
+      + '<div class="cc-time">' + (en ? 'At home, or a venue of your choice' : 'Chez vous, ou dans le lieu de votre choix') + '</div></div>'
+      + '<div class="cc-action"><a class="btn btn-dark btn-sm" href="mailto:contact@perleexperience.com?subject='
+      + encodeURIComponent(en ? 'Private class request' : 'Demande de cours priv\u00e9')
+      + '">' + (en ? 'Request a quote' : 'Demander un devis') + '</a></div></div>';
+  }
 
- let coursEnAttente = null;
+  function carteCours(c) {
+    var en = l() === 'en';
+    var d = new Date(c.debut);
+    var jour = d.toLocaleDateString(en ? 'en-GB' : 'fr-FR', { day: 'numeric' });
+    var mois = d.toLocaleDateString(en ? 'en-GB' : 'fr-FR', { weekday: 'short', month: 'short' });
+    var complet = c.places < 1;
+    var deja = compte && (compte.reservations || []).indexOf(c.id) !== -1;
 
- function bookClass(id) {
- const c = SCHEDULE.find(x => x.id === id); if (!c) return;
- /* Pas encore de compte : on retient le cours et on ouvre l'inscription.
- Une fois connectée, la réservation se fait toute seule. */
- if (!Perle.isLoggedIn()) {
- coursEnAttente = id;
- msg(lang() === 'en' ? 'Create an account to book this class.' : 'Créez un compte pour réserver ce cours.', '');
- Perle.openAuth('signup');
- return;
- }
- const r = Perle.book({ id: c.id, title: c.disc + ' — ' + c.lieu, lieu: c.lieu, date: c.date.toISOString() });
- if (r.ok) {
- msg(lang() === 'en' ? '✓ Class booked! See you on the mat.' : '✓ Cours réservé ! À très vite sur le tapis.', 'ok');
- renderBanner(); renderSchedule();
- } else if (r.reason === 'credits') {
- msg(lang() === 'en' ? 'No credits left — top up to book.' : 'Plus de crédits — rechargez pour réserver.', 'err');
- setTimeout(() => location.href = 'compte.html', 1400);
- }
- }
+    var action = deja
+      ? '<span class="btn btn-dark btn-sm">' + (en ? 'Booked \u2713' : 'R\u00e9serv\u00e9 \u2713') + '</span>'
+      : complet
+        ? '<span class="btn btn-dark btn-sm" style="opacity:.45">' + (en ? 'Full' : 'Complet') + '</span>'
+        : '<button class="btn btn-dark btn-sm" data-id="' + c.id + '">'
+          + (en ? 'Book (' + c.cout_credits + ')' : 'R\u00e9server (' + c.cout_credits + ')') + '</button>';
 
- /* Le planning est visible par tout le monde ; seul le bandeau change. */
- function renderGate() {
- const logged = Perle.isLoggedIn();
- document.getElementById('bannerMembre').style.display = logged ? '' : 'none';
- if (logged) renderBanner();
- renderSchedule();
- }
+    return '<div class="class-card' + (deja ? ' booked' : '') + '">'
+      + '<div class="cc-date"><span class="d">' + jour + '</span><span class="m">' + mois + '</span></div>'
+      + '<div class="cc-info"><span class="cc-tier">' + perleTexte(c.discipline) + '</span>'
+      + '<h4>' + perleTexte(c.lieu) + '</h4>'
+      + '<div class="cc-time">' + perleHeure(c.debut)
+      + (complet ? '' : ' \u00b7 ' + (en ? c.places + ' places left' : c.places + ' places')) + '</div></div>'
+      + '<div class="cc-action">' + action + '</div></div>';
+  }
 
- window.onPerleAuth = renderGate;
- window.addEventListener('perlelang', () => { if (Perle.isLoggedIn()) { renderBanner(); renderSchedule(); } });
+  function afficherPlanning() {
+    var sc = document.getElementById('schedule');
+    sc.innerHTML = carteSurMesureCours() + COURS.map(carteCours).join('');
+    sc.querySelectorAll('button[data-id]').forEach(function (b) {
+      b.addEventListener('click', function () { reserver(b.getAttribute('data-id')); });
+    });
+    var vide = document.getElementById('planningVide');
+    if (vide) { vide.hidden = COURS.length > 0; }
+  }
 
- /* Appelé par auth.js dès que la connexion réussit */
- window.onPerleAuth = function () {
- renderGate();
- if (coursEnAttente) { const id = coursEnAttente; coursEnAttente = null; bookClass(id); }
- };
+  function afficherBandeau() {
+    var b = document.getElementById('bannerMembre');
+    if (!b) return;
+    b.style.display = compte ? '' : 'none';
+    var c = document.getElementById('bbCredits');
+    if (c && compte) { c.textContent = compte.credits; }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- renderGate();
- });
+  async function reserver(id) {
+    /* Pas de compte : on retient le cours et on renvoie vers l'espace
+       compte, qui ramenera ici une fois la connexion faite. */
+    if (!compte) {
+      sessionStorage.setItem('perle-cours-attente', id);
+      message(l() === 'en'
+        ? 'Create an account to book this class\u2026'
+        : 'Cr\u00e9ez un compte pour r\u00e9server ce cours\u2026', '');
+      setTimeout(function () { location.href = 'compte.html?retour=reservation'; }, 900);
+      return;
+    }
+    try {
+      var r = await perlePoste('/reserver', { seance: id });
+      compte.credits = r.credits;
+      compte.reservations = (compte.reservations || []).concat([Number(id)]);
+      message(l() === 'en' ? 'Booked. See you there.' : 'C\u2019est r\u00e9serv\u00e9. \u00c0 tr\u00e8s vite.', 'ok');
+      await charger();
+    } catch (e) {
+      if (e.statut === 402) {
+        message(l() === 'en'
+          ? 'Not enough credits. Top up from your account.'
+          : 'Cr\u00e9dits insuffisants. Rechargez depuis votre compte.', 'ko');
+      } else {
+        message(e.message, 'ko');
+      }
+    }
+  }
+
+  async function charger() {
+    try {
+      compte = await perleMoi(true);
+      if (compte) {
+        var mes = await perleApi('/mes-reservations');
+        compte.reservations = (mes.reservations || [])
+          .filter(function (r) { return r.statut !== 'annulee'; })
+          .map(function (r) { return Number(r.seance_id); });
+        compte.credits = mes.credits;
+      }
+    } catch (e) { compte = null; }
+
+    try {
+      var d = await perleApi('/seances?type=cours');
+      COURS = d.seances || [];
+    } catch (e) { COURS = []; }
+
+    afficherBandeau();
+    afficherPlanning();
+
+    /* Retour depuis l'espace compte : on termine la reservation entamee. */
+    var attente = sessionStorage.getItem('perle-cours-attente');
+    if (attente && compte) {
+      sessionStorage.removeItem('perle-cours-attente');
+      reserver(attente);
+    }
+  }
+
+  charger();
+  window.addEventListener('perlelang', afficherPlanning);
 </script>
 </body>
 </html>

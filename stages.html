@@ -29,7 +29,7 @@
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
- <link rel="stylesheet" href="styles.css?v=9">
+ <link rel="stylesheet" href="styles.css?v=11">
  <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -228,25 +228,6 @@
       Les prochaines dates sont en cours de programmation. Écrivez-nous pour être prévenue en priorité.
     </p>
 </section>
-<!-- SUR MESURE -->
-<section class="prive">
-  <div class="container">
-    <div class="prive-inner fade-in">
-      <span class="section-label" data-fr="Sur mesure" data-en="Bespoke">Sur mesure</span>
-      <h2 data-fr="Votre journée, rien qu’à vous" data-en="Your day, yours alone">Votre journée, rien qu’à vous</h2>
-      <p data-fr="Anniversaire, enterrement de vie de jeune fille, cercle d’amies, comité d’entreprise : nous composons une Journée Perle à votre date, dans le lieu de votre choix, et pour le nombre de participantes que vous souhaitez."
-         data-en="Birthday, hen party, circle of friends, company committee: we compose a Perle Day on your date, in the venue of your choice, for as many guests as you wish.">
-        Anniversaire, enterrement de vie de jeune fille, cercle d’amies, comité d’entreprise : nous composons une Journée Perle à votre date, dans le lieu de votre choix, et pour le nombre de participantes que vous souhaitez.
-      </p>
-      <div class="prive-actions">
-        <a href="mailto:contact@perleexperience.com?subject=Demande%20de%20journ%C3%A9e%20priv%C3%A9e" class="btn btn-dark"
-           data-fr="Demander un devis" data-en="Request a quote">Demander un devis</a>
-        <a href="tel:+33677303065" class="prive-tel">06 77 30 30 65</a>
-      </div>
-    </div>
-  </div>
-</section>
-
 
 <section class="cta-band">
  <div class="container fade-in">
@@ -293,8 +274,8 @@
  </div>
 </footer>
 
-<script src="auth.js?v=9"></script>
-<script src="script.js?v=9"></script>
+<script src="auth.js?v=11"></script>
+<script src="script.js?v=11"></script>
 <script src="perle-api.js?v=1"></script>
 <script>
   /* Les dates viennent de la base : ce qui est publie dans l'administration
@@ -303,7 +284,6 @@
   (function () {
     var grille = document.getElementById('grilleStages');
     var vide   = document.getElementById('stagesVide');
-    var privee = grille.querySelector('.stage-card');
 
     function carte(s, i) {
       var l = perleLangue();
@@ -337,11 +317,34 @@
       return el;
     }
 
+    /* Carte du sur-mesure : meme forme qu'une date, couleur differente.
+       Elle reste en tete, qu'il y ait des dates programmees ou non. */
+    function carteSurMesureStage() {
+      var l = perleLangue();
+      var el = document.createElement('div');
+      el.className = 'stage-card carte-sur-mesure fade-in visible';
+      el.innerHTML =
+        '<div class="stage-top">'
+        + '<div class="stage-date"><b>\u2014</b><span>'
+        + (l === 'en' ? 'Your date' : '\u00c0 votre date') + '</span></div>'
+        + '<div class="stage-price"><small>' + (l === 'en' ? 'On quote' : 'Sur devis') + '</small></div>'
+        + '</div>'
+        + '<h3>' + (l === 'en' ? 'Your own private day' : 'Votre journ\u00e9e priv\u00e9e') + '</h3>'
+        + '<p class="stage-lieu">' + (l === 'en' ? 'The venue of your choice' : 'Le lieu de votre choix') + '</p>'
+        + '<p class="stage-hours">' + (l === 'en'
+            ? 'Birthday, hen party, friends, company'
+            : 'Anniversaire, EVJF, amies, entreprise') + '</p>'
+        + '<span class="stage-places">' + (l === 'en' ? 'From 4 people' : '\u00c0 partir de 4 personnes') + '</span>'
+        + '<a href="mailto:contact@perleexperience.com?subject='
+        + encodeURIComponent(l === 'en' ? 'Private day request' : 'Demande de journ\u00e9e priv\u00e9e')
+        + '" class="btn btn-dark">' + (l === 'en' ? 'Request a quote' : 'Demander un devis') + '</a>';
+      return el;
+    }
+
     function afficher(seances) {
-      grille.querySelectorAll('.stage-card').forEach(function (c) {
-        if (c !== privee) { c.remove(); }
-      });
-      seances.forEach(function (s, i) { grille.insertBefore(carte(s, i), privee); });
+      grille.innerHTML = '';
+      grille.appendChild(carteSurMesureStage());
+      seances.forEach(function (s, i) { grille.appendChild(carte(s, i)); });
       vide.hidden = seances.length > 0;
     }
 
