@@ -48,15 +48,21 @@ function corps(): array
     return $corps;
 }
 
+/**
+ * Valeur envoyee, qu'elle vienne du corps de la requete ou de l'adresse.
+ *
+ * Sans le repli sur $_GET, un filtre passe en ?type=stage etait ignore et
+ * la page recevait tout le catalogue.
+ */
 function champ(string $nom, string $defaut = ''): string
 {
-    $v = corps()[$nom] ?? $defaut;
+    $v = corps()[$nom] ?? ($_GET[$nom] ?? $defaut);
     return is_scalar($v) ? trim((string) $v) : $defaut;
 }
 
 function champEntier(string $nom, int $defaut = 0): int
 {
-    $v = corps()[$nom] ?? $defaut;
+    $v = corps()[$nom] ?? ($_GET[$nom] ?? $defaut);
     return is_numeric($v) ? (int) $v : $defaut;
 }
 
