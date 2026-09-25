@@ -67,7 +67,7 @@ try {
        . htmlspecialchars((string) $c['bdd_nom'], ENT_QUOTES) . '</code>, utilisateur <code>'
        . htmlspecialchars((string) $c['bdd_utilisateur'], ENT_QUOTES) . '</code>, hote <code>'
        . htmlspecialchars((string) $c['bdd_hote'], ENT_QUOTES) . '</code>. '
-       . 'Le mot de passe n'est pas affiche.</p></div>';
+       . "Le mot de passe n'est pas affiche.</p></div>";
     error_log('[perle][install] ' . $brut);
     exit;
 }
