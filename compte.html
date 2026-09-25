@@ -29,7 +29,7 @@
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
- <link rel="stylesheet" href="styles.css?v=11">
+ <link rel="stylesheet" href="styles.css?v=12">
  <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -88,16 +88,49 @@
 
  <!-- INVITÉ (non connecté) -->
  <div class="account-guest" id="guestView" style="display:none">
- <img src="logo-petit.png" alt="Perle" style="height:70px;margin:0 auto 24px">
- <h2 data-fr="Votre espace bien-être" data-en="Your wellbeing space">Votre espace bien-être</h2>
- <p data-fr="Connectez-vous ou créez un compte pour acheter des crédits, réserver vos séances et suivre votre historique." data-en="Log in or create an account to buy credits, book your classes and track your history.">Connectez-vous ou créez un compte pour acheter des crédits, réserver vos séances et suivre votre historique.</p>
- <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
- <button class="btn btn-dark" id="guestSignup" data-fr="Créer un compte" data-en="Create account">Créer un compte</button>
- <button class="btn btn-outline" id="guestLogin" style="color:var(--brown);border-color:var(--brown)" data-fr="Se connecter" data-en="Log in">Se connecter</button>
- </div>
- </div>
+        <img src="logo-petit.png" alt="Perle" style="height:70px;margin:0 auto 24px">
+        <h2 id="titreAcces" data-fr="Votre espace bien-être" data-en="Your wellbeing space">Votre espace bien-être</h2>
+        <p id="sousAcces" data-fr="Connectez-vous ou créez un compte pour acheter des crédits, réserver vos séances et suivre votre historique."
+           data-en="Log in or create an account to buy credits, book your classes and track your history.">
+          Connectez-vous ou créez un compte pour acheter des crédits, réserver vos séances et suivre votre historique.
+        </p>
 
- <!-- CONNECTÉ -->
+        <form class="form-acces" id="formConnexion" novalidate>
+          <div class="acces-onglets" role="tablist">
+            <button type="button" id="ongletConnexion" class="actif" data-fr="Se connecter" data-en="Log in">Se connecter</button>
+            <button type="button" id="ongletInscription" data-fr="Créer un compte" data-en="Create account">Créer un compte</button>
+          </div>
+
+          <div id="champsInscription" hidden>
+            <div class="form-row">
+              <div class="form-group"><label for="accesPrenom" data-fr="Prénom *" data-en="First name *">Prénom *</label>
+                <input type="text" id="accesPrenom" autocomplete="given-name" placeholder="Marie"></div>
+              <div class="form-group"><label for="accesNom" data-fr="Nom" data-en="Last name">Nom</label>
+                <input type="text" id="accesNom" autocomplete="family-name" placeholder="Dupont"></div>
+            </div>
+            <div class="form-group"><label for="accesTel" data-fr="Téléphone" data-en="Phone">Téléphone</label>
+              <input type="tel" id="accesTel" autocomplete="tel" placeholder="06 12 34 56 78"></div>
+          </div>
+
+          <div class="form-group"><label for="accesEmail" data-fr="Email *" data-en="Email *">Email *</label>
+            <input type="email" id="accesEmail" required autocomplete="email" placeholder="marie.dupont@email.com"></div>
+
+          <div class="form-group">
+            <label for="accesMdp" data-fr="Mot de passe *" data-en="Password *">Mot de passe *</label>
+            <div class="champ-mdp-site">
+              <input type="password" id="accesMdp" required autocomplete="current-password">
+              <button type="button" id="voirAccesMdp" data-fr="Afficher" data-en="Show">Afficher</button>
+            </div>
+            <span class="aide-mdp" id="aideMdp" hidden data-fr="8 caractères minimum." data-en="8 characters minimum.">8 caractères minimum.</span>
+          </div>
+
+          <button type="submit" class="btn btn-dark" style="width:100%" id="boutonAcces"
+                  data-fr="Se connecter" data-en="Log in">Se connecter</button>
+          <p class="acces-erreur" id="accesErreur" role="alert"></p>
+        </form>
+      </div>
+
+      <!-- CONNECTÉ -->
  <div id="memberView" style="display:none">
  <div class="credit-hero">
  <div>
@@ -224,166 +257,265 @@
  </div>
 </footer>
 
-<script src="auth.js?v=11"></script>
-<script src="script.js?v=11"></script>
+<script src="script.js?v=12"></script>
+<script src="perle-api.js?v=11"></script>
 <script>
- function lang() { return localStorage.getItem('perle-lang') || 'fr'; }
+  /* ── ESPACE COMPTE ─────────────────────────────────────────────────
+     Un seul formulaire pour tout le monde. Le serveur sait si le compte
+     est administrateur ; dans ce cas on renvoie vers /admin plutot que
+     d'entretenir une seconde porte d'entree. */
 
- function render() {
- const u = Perle.getUser();
- document.getElementById('guestView').style.display = u ? 'none' : 'block';
- document.getElementById('memberView').style.display = u ? 'block' : 'none';
- if (!u) return;
- document.getElementById('greeting').textContent = (lang() === 'en' ? 'Hello, ' : 'Bonjour, ') + u.name;
- document.getElementById('balance').textContent = Perle.soldeValide();
+  var moi = null;
+  var mode = 'connexion';
 
- /* Échéance des crédits */
- const ech = Perle.prochaineExpiration();
- const zoneEch = document.getElementById('creditExpire');
- if (!ech) {
- zoneEch.textContent = '';
- zoneEch.className = 'credit-expire';
- } else {
- const d = new Date(ech.expire).toLocaleDateString(lang() === 'en' ? 'en-GB' : 'fr-FR',
- { day: 'numeric', month: 'long', year: 'numeric' });
- const urgent = ech.jours <= 14;
- zoneEch.className = 'credit-expire' + (urgent ? ' urgent' : '');
- zoneEch.textContent = lang() === 'en'
- ? ech.credits + ' credit(s) expire on ' + d + (urgent ? ' — ' + ech.jours + ' days left' : '')
- : ech.credits + ' crédit(s) expirent le ' + d + (urgent ? ' — plus que ' + ech.jours + ' jours' : '');
- }
+  function L() { return perleLangue(); }
+  function $(s) { return document.querySelector(s); }
 
- /* Fidélité */
- const total = u.purchased || 0;
- const tiers = Perle.REWARDS;
- const max = tiers[tiers.length - 1].threshold;
- document.getElementById('loyTotal').textContent = total;
- document.getElementById('loyFill').style.width = Math.min(100, (total / max) * 100) + '%';
- document.getElementById('loyTiers').innerHTML = tiers.map(t => {
- const done = total >= t.threshold;
- return '<div class="loyalty-tier' + (done ? ' done' : '') + '" style="left:' + (t.threshold / max) * 100 + '%">' +
- '<div class="loyalty-dot">' + (done ? '✓' : t.threshold) + '</div>' +
- '<div class="loyalty-label">' + t.title + '</div></div>';
- }).join('');
- const next = tiers.find(t => total < t.threshold);
- document.getElementById('loyNext').innerHTML = next
- ? (lang() === 'en'
- ? 'Only <b>' + (next.threshold - total) + '</b> more classes until: <b>' + t2en(next.title) + '</b>'
- : 'Plus que <b>' + (next.threshold - total) + '</b> cours avant : <b>' + next.title + '</b>' + (next.detail ? ' · ' + next.detail : ''))
- : (lang() === 'en' ? '🎉 All tiers reached — thank you for your loyalty!' : '🎉 Tous les paliers sont atteints — merci pour votre fidélité !');
- function t2en(s){ return s; }
+  /* ── Formulaire d'acces ─────────────────────────────────────────── */
 
- const hist = document.getElementById('history');
- if (!u.bookings || u.bookings.length === 0) {
- hist.innerHTML = '<div class="history-empty">' + (lang() === 'en' ? 'No bookings yet. Book your first class!' : "Aucune réservation pour l'instant. Réservez votre premier cours !") + '</div>';
- } else {
- hist.innerHTML = u.bookings.map(b => {
- const d = new Date(b.date).toLocaleDateString(lang() === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
- return '<div class="history-item"><div><div class="hi-title">' + escapeHtml(b.title) + '</div>' +
- '<div class="hi-meta">' + escapeHtml(b.lieu) + ' · ' + d + '</div></div>' +
- '<div class="hi-tag">−1 ' + (lang() === 'en' ? 'credit' : 'crédit') + '</div></div>';
- }).join('');
- }
- }
- function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  function basculer(nouveau) {
+    mode = nouveau;
+    var inscription = mode === 'inscription';
+    $('#champsInscription').hidden = !inscription;
+    $('#aideMdp').hidden = !inscription;
+    $('#accesPrenom').required = inscription;
+    $('#accesMdp').autocomplete = inscription ? 'new-password' : 'current-password';
+    $('#ongletConnexion').classList.toggle('actif', !inscription);
+    $('#ongletInscription').classList.toggle('actif', inscription);
+    var b = $('#boutonAcces');
+    b.setAttribute('data-fr', inscription ? 'Créer mon compte' : 'Se connecter');
+    b.setAttribute('data-en', inscription ? 'Create my account' : 'Log in');
+    b.textContent = L() === 'en' ? b.getAttribute('data-en') : b.getAttribute('data-fr');
+    $('#accesErreur').textContent = '';
+  }
 
- window.onPerleAuth = render;
- window.addEventListener('perlelang', render);
+  $('#ongletConnexion').addEventListener('click', function () { basculer('connexion'); });
+  $('#ongletInscription').addEventListener('click', function () { basculer('inscription'); });
 
- document.addEventListener('DOMContentLoaded', () => {
- render();
- document.getElementById('guestSignup').addEventListener('click', () => Perle.openAuth('signup'));
- document.getElementById('guestLogin').addEventListener('click', () => Perle.openAuth('login'));
- document.getElementById('logoutBtn').addEventListener('click', () => { Perle.logout(); render(); });
- /* Codes d'activation — Perle les transmet après réception du règlement.
- Pour les changer (par exemple si un code circule trop), il suffit de
- modifier cette liste. */
- const CODES = {
- 'NACRE1' : { credits: 1, mois: 1 },
- 'NACRE6' : { credits: 6, mois: 2 },
- 'NACRE12' : { credits: 12, mois: 4 }
- };
+  $('#voirAccesMdp').addEventListener('click', function () {
+    var c = $('#accesMdp');
+    var montre = c.type === 'text';
+    c.type = montre ? 'password' : 'text';
+    this.textContent = L() === 'en' ? (montre ? 'Show' : 'Hide') : (montre ? 'Afficher' : 'Masquer');
+    c.focus();
+  });
 
- function modePaiement() {
- const r = document.querySelector('input[name=packPaiement]:checked');
- return r ? r.value : '';
- }
+  $('#formConnexion').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var err = $('#accesErreur');
+    var b = $('#boutonAcces');
+    var libelle = b.textContent;
+    err.textContent = '';
 
- function paiementEnLigne() {
- const r = document.querySelector('input[name=packPaiement]:checked');
- return !!(r && r.dataset.enligne);
- }
+    var email = $('#accesEmail').value.trim();
+    var mdp = $('#accesMdp').value;
+    if (!email || !mdp) { err.textContent = L() === 'en' ? 'Fill in both fields.' : 'Remplissez les deux champs.'; return; }
 
- /* Commander un pack : on prévient Perle, on ne crédite rien.
- Les crédits n'arrivent qu'avec le code, donc après règlement. */
- document.querySelectorAll('.pack [data-credits]').forEach(btn => {
- btn.addEventListener('click', () => {
- const u = Perle.getUser();
- if (!u) { Perle.openAuth('login'); return; }
- const m = document.getElementById('buyMsg');
- const etiquette = btn.textContent;
- btn.disabled = true;
- btn.textContent = lang() === 'en' ? 'Sending…' : 'Envoi…';
+    b.disabled = true;
+    b.textContent = L() === 'en' ? 'One moment…' : 'Un instant…';
+    try {
+      var r = mode === 'inscription'
+        ? await perlePoste('/inscription', {
+            email: email, motdepasse: mdp,
+            prenom: $('#accesPrenom').value.trim(),
+            nom: $('#accesNom').value.trim(),
+            telephone: $('#accesTel').value.trim(),
+          })
+        : await perlePoste('/connexion', { email: email, motdepasse: mdp });
 
- envoyerDemande('Commande pack - ' + u.name, {
- 'Pack' : btn.getAttribute('data-nom'),
- 'Prix' : btn.getAttribute('data-prix'),
- 'Seances' : btn.getAttribute('data-credits'),
- 'Validite' : btn.getAttribute('data-mois') + ' mois',
- 'Cliente' : u.name,
- 'email' : u.email,
- 'Paiement' : modePaiement()
- }).then(r => {
- btn.disabled = false;
- btn.textContent = etiquette;
- m.style.color = r.ok ? '#4a7c48' : '#a33';
- if (!r.ok) {
- m.textContent = lang() === 'en'
- ? 'Sending failed. Please call 06 77 30 30 65.'
- : "L'envoi a échoué. Appelez le 06 77 30 30 65.";
- setTimeout(() => { m.textContent = ''; }, 8000);
- return;
- }
- /* Paiement en ligne : Stripe encaisse, puis Perle envoie le code
- d'activation. Sans lien configure, la commande part seule. */
- const cle = 'pack' + btn.getAttribute('data-credits');
- if (paiementEnLigne() && PERLE_STRIPE[cle]) {
- m.textContent = lang() === 'en'
- ? '✓ Order sent. Redirecting to payment…'
- : '✓ Commande envoyée. Redirection vers le paiement…';
- setTimeout(() => allerVersStripe(cle), 1200);
- return;
- }
- m.textContent = lang() === 'en'
- ? '✓ Order sent. Perle will confirm and send you the payment details.'
- : '✓ Commande envoyée. Perle vous confirme et vous transmet le règlement.';
- setTimeout(() => { m.textContent = ''; }, 8000);
- });
- });
- });
+      moi = r.compte;
+      $('#accesMdp').value = '';
 
- /* Activation des crédits par code */
- document.getElementById('codeBtn').addEventListener('click', () => {
- const champ = document.getElementById('codeActivation');
- const msg = document.getElementById('codeMsg');
- const c = CODES[champ.value.trim().toUpperCase()];
- if (!c) {
- msg.className = 'code-msg erreur';
- msg.textContent = lang() === 'en' ? 'Unknown code.' : 'Code inconnu.';
- return;
- }
- const bonus = Perle.addCredits(c.credits, c.mois);
- champ.value = '';
- render();
- msg.className = 'code-msg';
- msg.textContent = (lang() === 'en'
- ? '✓ ' + c.credits + ' credit' + (c.credits > 1 ? 's' : '') + ' added.'
- : '✓ ' + c.credits + ' crédit' + (c.credits > 1 ? 's' : '') + ' ajouté' + (c.credits > 1 ? 's' : '') + '.')
- + (bonus > 0
- ? (lang() === 'en' ? ' 🎁 ' + bonus + ' free class!' : ' 🎁 ' + bonus + ' cours offert !')
- : '');
- });
- });
+      /* Compte administrateur : on l'emmene a son tableau de bord. */
+      if (moi.admin) { location.href = '/admin/'; return; }
+
+      /* Retour vers le cours qu'elle voulait reserver. */
+      var p = new URLSearchParams(location.search);
+      if (p.get('retour') === 'reservation') { location.href = 'reservation.html'; return; }
+
+      await charger();
+    } catch (ex) {
+      err.textContent = ex.message
+        + (String(ex.message).indexOf('incorrect') !== -1
+            ? (L() === 'en'
+                ? ' — check with « Show » what the field really contains.'
+                : ' — vérifiez avec « Afficher » ce que contient vraiment le champ.')
+            : '');
+    } finally {
+      b.disabled = false;
+      b.textContent = libelle;
+    }
+  });
+
+  /* ── Affichage ──────────────────────────────────────────────────── */
+
+  function afficher(reservations) {
+    var invite = $('#guestView');
+    var membre = $('#memberView');
+    invite.style.display = moi ? 'none' : '';
+    membre.style.display = moi ? '' : 'none';
+    if (!moi) return;
+
+    $('#greeting').textContent = (L() === 'en' ? 'Hello, ' : 'Bonjour, ') + moi.prenom;
+    $('#balance').textContent = moi.credits;
+
+    var exp = $('#creditExpire');
+    if (moi.expiration) {
+      exp.textContent = L() === 'en'
+        ? moi.expiration.credits + ' credit(s) expire in ' + moi.expiration.jours + ' days'
+        : moi.expiration.credits + ' crédit(s) expirent dans ' + moi.expiration.jours + ' jours';
+      exp.className = moi.expiration.jours <= 15 ? 'urgent' : '';
+    } else {
+      exp.textContent = '';
+    }
+
+    afficherFidelite(reservations);
+    afficherHistorique(reservations);
+  }
+
+  /* Fidelite : comptee sur les seances reellement suivies. */
+  var PALIERS = [
+    { n: 10, fr: 'Bouteille floquée Perle offerte', en: 'Free Perle bottle' },
+    { n: 20, fr: '1 cours offert', en: '1 free class' },
+    { n: 40, fr: 'Cadeau surprise Perle', en: 'Perle surprise gift' }
+  ];
+
+  function afficherFidelite(reservations) {
+    var faits = reservations.filter(function (r) { return r.statut !== 'annulee'; }).length;
+    var total = $('#loyTotal');
+    if (total) { total.textContent = faits; }
+
+    var max = PALIERS[PALIERS.length - 1].n;
+    var fill = $('#loyFill');
+    if (fill) { fill.style.width = Math.min(100, (faits / max) * 100) + '%'; }
+
+    var suivant = PALIERS.find(function (p) { return p.n > faits; });
+    var next = $('#loyNext');
+    if (next) {
+      next.innerHTML = suivant
+        ? (L() === 'en'
+            ? 'Only <strong>' + (suivant.n - faits) + '</strong> classes to go: <strong>' + suivant.en + '</strong>'
+            : 'Plus que <strong>' + (suivant.n - faits) + '</strong> cours avant : <strong>' + suivant.fr + '</strong>')
+        : (L() === 'en' ? 'All rewards unlocked. Thank you.' : 'Tous les paliers atteints. Merci à vous.');
+    }
+  }
+
+  function afficherHistorique(reservations) {
+    var h = $('#history');
+    if (!h) return;
+    if (!reservations.length) {
+      h.innerHTML = '<p style="opacity:.6;font-size:.9rem">'
+        + (L() === 'en' ? 'No booking yet.' : 'Aucune réservation pour le moment.') + '</p>';
+      return;
+    }
+    h.innerHTML = reservations.map(function (r) {
+      var d = new Date(r.debut);
+      var annulee = r.statut === 'annulee';
+      var passe = r.debut < new Date().toISOString().slice(0, 19);
+      return '<div class="history-item' + (annulee ? ' annulee' : '') + '">'
+        + '<div><strong>' + perleTexte(r.titre) + '</strong>'
+        + '<span style="display:block;font-size:.82rem;opacity:.65">' + perleTexte(r.lieu) + ' · '
+        + d.toLocaleDateString(L() === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+        + ' · ' + perleHeure(r.debut) + '</span></div>'
+        + (annulee
+            ? '<span style="font-size:.82rem;opacity:.6">' + (L() === 'en' ? 'Cancelled' : 'Annulée') + '</span>'
+            : passe
+              ? '<span style="font-size:.82rem;opacity:.6">' + (L() === 'en' ? 'Done' : 'Passée') + '</span>'
+              : '<button class="btn btn-outline btn-sm" data-annuler="' + r.id + '">'
+                + (L() === 'en' ? 'Cancel' : 'Annuler') + '</button>')
+        + '</div>';
+    }).join('');
+
+    h.querySelectorAll('[data-annuler]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        if (!confirm(L() === 'en'
+          ? 'Cancel this booking?'
+          : 'Annuler cette réservation ?\n\nDans les délais, votre crédit vous est rendu.')) return;
+        try {
+          var r = await perlePoste('/annuler', { reservation: b.getAttribute('data-annuler') });
+          alert(r.message);
+          await charger();
+        } catch (e) { alert(e.message); }
+      });
+    });
+  }
+
+  /* ── Commandes de packs et code d'activation ───────────────────── */
+
+  function modePaiement() {
+    var r = document.querySelector('input[name=packPaiement]:checked');
+    return r ? r.value : '';
+  }
+
+  document.querySelectorAll('.pack [data-credits]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (!moi) { $('#accesEmail').focus(); $('#guestView').scrollIntoView({ block: 'center' }); return; }
+      var m = $('#buyMsg');
+      var libelle = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = L() === 'en' ? 'Sending…' : 'Envoi…';
+      envoyerDemande('Commande pack - ' + moi.prenom, {
+        'Pack': btn.getAttribute('data-nom'),
+        'Prix': btn.getAttribute('data-prix'),
+        'Seances': btn.getAttribute('data-credits'),
+        'Validite': btn.getAttribute('data-mois') + ' mois',
+        'Cliente': moi.prenom + ' ' + (moi.nom || ''),
+        'email': moi.email,
+        'Paiement': modePaiement()
+      }).then(function (r) {
+        btn.disabled = false;
+        btn.textContent = libelle;
+        m.style.color = r.ok ? '#4a7c48' : '#a33';
+        m.textContent = r.ok
+          ? (L() === 'en'
+              ? '\u2713 Order sent. Perle will confirm and send you the payment details.'
+              : '\u2713 Commande envoyée. Perle vous confirme et vous transmet le règlement.')
+          : (L() === 'en' ? 'Sending failed. Please call 06 77 30 30 65.' : "L'envoi a échoué. Appelez le 06 77 30 30 65.");
+        setTimeout(function () { m.textContent = ''; }, 8000);
+      });
+    });
+  });
+
+  var boutonCode = $('#codeBtn');
+  if (boutonCode) {
+    boutonCode.addEventListener('click', function () {
+      var msg = $('#codeMsg');
+      msg.className = 'code-msg erreur';
+      msg.textContent = L() === 'en'
+        ? 'Credits are now added by Perle directly on your account.'
+        : 'Les crédits sont désormais ajoutés par Perle directement sur votre compte.';
+    });
+  }
+
+  /* ── Deconnexion ───────────────────────────────────────────────── */
+
+  var deco = $('#logoutBtn');
+  if (deco) {
+    deco.addEventListener('click', async function () {
+      await perlePoste('/deconnexion', {}).catch(function () {});
+      moi = null;
+      location.href = 'index.html';
+    });
+  }
+
+  /* ── Chargement ────────────────────────────────────────────────── */
+
+  async function charger() {
+    moi = await perleMoi(true);
+    var reservations = [];
+    if (moi) {
+      if (moi.admin) { location.href = '/admin/'; return; }
+      try {
+        var d = await perleApi('/mes-reservations');
+        reservations = d.reservations || [];
+        moi.credits = d.credits;
+      } catch (e) { /* on affiche quand meme le reste */ }
+    }
+    afficher(reservations);
+  }
+
+  charger();
+  window.addEventListener('perlelang', function () { charger(); });
 </script>
 </body>
 </html>

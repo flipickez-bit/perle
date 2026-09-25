@@ -61,72 +61,29 @@ function message(texte, echec = false) {
 
 /* ── Connexion ─────────────────────────────────────────────── */
 
+/**
+ * Une seule porte d'entree sur le site : celle de l'espace compte.
+ * Le serveur sait si le compte est administrateur et renvoie ici ; il n'y
+ * a donc plus de formulaire a maintenir en double.
+ */
 async function verifierSession() {
   try {
     const { compte } = await api('/moi');
     if (compte && compte.admin) { montrerAdmin(); return; }
-    if (compte) {
-      $('#erreurConnexion').textContent = "Ce compte n'est pas administrateur.";
-    }
   } catch { /* hors ligne ou non connectée */ }
-  montrerConnexion();
-}
-
-function montrerConnexion() {
-  $('#vueConnexion').hidden = false;
-  $('#vueAdmin').hidden = true;
+  location.href = '/compte.html?admin=1';
 }
 
 function montrerAdmin() {
-  $('#vueConnexion').hidden = true;
   $('#vueAdmin').hidden = false;
   routerHash();
 }
 
-$('#formConnexion').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const bouton = e.target.querySelector('button[type=submit]');
-  const err = $('#erreurConnexion');
-  err.textContent = '';
-  const libelle = bouton.textContent;
-  bouton.disabled = true;
-  bouton.textContent = 'Connexion…';
-  try {
-    const { compte } = await poste('/connexion', {
-      email: $('#email').value.trim(),
-      motdepasse: $('#motdepasse').value,
-    });
-    if (!compte.admin) {
-      err.textContent = "Ce compte n'est pas administrateur.";
-      return;
-    }
-    $('#motdepasse').value = '';
-    montrerAdmin();
-  } catch (ex) {
-    err.textContent = ex.message
-      + (ex.message.includes('incorrect')
-          ? ' — vérifiez avec « Afficher » que le champ contient bien ce que vous avez tapé : '
-            + 'le navigateur y place parfois un mot de passe enregistré.'
-          : '');
-  } finally {
-    bouton.disabled = false;
-    bouton.textContent = libelle;
-  }
-});
 
-// Laisse voir ce qui est reellement dans le champ.
-$('#voirMdp').addEventListener('click', () => {
-  const champ = $('#motdepasse');
-  const montre = champ.type === 'text';
-  champ.type = montre ? 'password' : 'text';
-  $('#voirMdp').textContent = montre ? 'Afficher' : 'Masquer';
-  champ.focus();
-});
 
 $('#boutonDeconnexion').addEventListener('click', async () => {
   await poste('/deconnexion', {}).catch(() => {});
-  location.hash = '';
-  montrerConnexion();
+  location.href = '/';
 });
 
 /* ── Navigation ────────────────────────────────────────────── */

@@ -1254,3 +1254,37 @@ footer { position: relative; z-index: 1; padding: 80px 0 34px; color: var(--ink)
 /* Message affiche quand aucun cours n'est programme */
 .planning-vide { max-width: 560px; margin: 18px auto 0; text-align: center;
   font-size: .95rem; font-weight: 300; line-height: 1.7; color: var(--ink); opacity: .7; }
+
+
+/* ── FORMULAIRE D'ACCES (compte.html) ────────────────────────── */
+.form-acces { max-width: 380px; margin: 26px auto 0; text-align: left; }
+.acces-onglets { display: flex; gap: 4px; margin-bottom: 22px;
+  border-bottom: 1px solid rgba(75,46,32,.14); }
+.acces-onglets button {
+  flex: 1; padding: 11px 8px; background: none; border: none;
+  border-bottom: 2px solid transparent; font-family: inherit; font-size: .88rem;
+  font-weight: 500; color: var(--ink); opacity: .55; cursor: pointer;
+}
+.acces-onglets button.actif { color: var(--shell); opacity: 1; font-weight: 600;
+  border-bottom-color: var(--shell); }
+
+/* Voir ce que contient reellement le champ : les navigateurs y placent
+   parfois un mot de passe enregistre a la place de ce qui est tape. */
+.champ-mdp-site { position: relative; }
+.champ-mdp-site input { padding-right: 78px; }
+.champ-mdp-site button {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; padding: 5px 8px; cursor: pointer;
+  font-family: inherit; font-size: .7rem; letter-spacing: .05em;
+  text-transform: uppercase; font-weight: 600; color: var(--shell); opacity: .6;
+}
+.champ-mdp-site button:hover { opacity: 1; }
+.aide-mdp { display: block; margin-top: 5px; font-size: .76rem; opacity: .6; }
+
+.acces-erreur:not(:empty) {
+  margin-top: 16px; padding: 11px 14px; border-radius: 10px;
+  background: rgba(160,58,58,.1); border: 1px solid rgba(160,58,58,.3);
+  color: #A03A3A; font-size: .86rem; line-height: 1.5; font-weight: 500;
+}
+
+.history-item.annulee { opacity: .5; }
