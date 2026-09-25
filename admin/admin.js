@@ -85,10 +85,12 @@ function montrerAdmin() {
 
 $('#formConnexion').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const bouton = e.target.querySelector('button');
+  const bouton = e.target.querySelector('button[type=submit]');
   const err = $('#erreurConnexion');
   err.textContent = '';
+  const libelle = bouton.textContent;
   bouton.disabled = true;
+  bouton.textContent = 'Connexion…';
   try {
     const { compte } = await poste('/connexion', {
       email: $('#email').value.trim(),
@@ -101,10 +103,24 @@ $('#formConnexion').addEventListener('submit', async (e) => {
     $('#motdepasse').value = '';
     montrerAdmin();
   } catch (ex) {
-    err.textContent = ex.message;
+    err.textContent = ex.message
+      + (ex.message.includes('incorrect')
+          ? ' — vérifiez avec « Afficher » que le champ contient bien ce que vous avez tapé : '
+            + 'le navigateur y place parfois un mot de passe enregistré.'
+          : '');
   } finally {
     bouton.disabled = false;
+    bouton.textContent = libelle;
   }
+});
+
+// Laisse voir ce qui est reellement dans le champ.
+$('#voirMdp').addEventListener('click', () => {
+  const champ = $('#motdepasse');
+  const montre = champ.type === 'text';
+  champ.type = montre ? 'password' : 'text';
+  $('#voirMdp').textContent = montre ? 'Afficher' : 'Masquer';
+  champ.focus();
 });
 
 $('#boutonDeconnexion').addEventListener('click', async () => {
@@ -325,7 +341,11 @@ $('#formSeance').addEventListener('submit', async (e) => {
     if (id) chargerSeance(id); else location.hash = 'planning';
     if (location.hash.slice(1) === 'planning') chargerPlanning();
   } catch (ex) {
-    err.textContent = ex.message;
+    err.textContent = ex.message
+      + (ex.message.includes('incorrect')
+          ? ' — vérifiez avec « Afficher » que le champ contient bien ce que vous avez tapé : '
+            + 'le navigateur y place parfois un mot de passe enregistré.'
+          : '');
   } finally {
     bouton.disabled = false;
   }

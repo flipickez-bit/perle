@@ -64,6 +64,23 @@ textarea { resize: vertical; }
 }
 
 .erreur { color: #A03A3A; font-size: .86rem; margin: 10px 0 0; min-height: 1em; }
+.carte-connexion .erreur:not(:empty) {
+  background: rgba(160, 58, 58, .1); border: 1px solid rgba(160, 58, 58, .3);
+  border-radius: 10px; padding: 11px 14px; margin-top: 16px; text-align: left;
+  font-weight: 500; line-height: 1.45;
+}
+
+/* Voir ce que contient reellement le champ : les navigateurs y placent
+   parfois un mot de passe enregistre a la place de ce qui est tape. */
+.champ-mdp { position: relative; margin-bottom: 16px; }
+.champ-mdp input { margin-bottom: 0; padding-right: 76px; }
+.champ-mdp button {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; padding: 5px 8px; cursor: pointer;
+  font-family: inherit; font-size: .72rem; letter-spacing: .05em;
+  text-transform: uppercase; font-weight: 600; color: var(--marron); opacity: .65;
+}
+.champ-mdp button:hover { opacity: 1; }
 
 /* ── En-tête ─────────────────────────────────────────────────── */
 .entete {

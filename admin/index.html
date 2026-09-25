@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=1">
+  <link rel="stylesheet" href="admin.css?v=2">
 </head>
 <body>
 
@@ -24,7 +24,10 @@
     <label for="email">Email</label>
     <input id="email" name="email" type="email" required autocomplete="username">
     <label for="motdepasse">Mot de passe</label>
-    <input id="motdepasse" name="motdepasse" type="password" required autocomplete="current-password">
+    <div class="champ-mdp">
+      <input id="motdepasse" name="motdepasse" type="password" required autocomplete="current-password">
+      <button type="button" id="voirMdp" aria-label="Afficher le mot de passe">Afficher</button>
+    </div>
     <button type="submit" class="bouton">Se connecter</button>
     <p class="erreur" id="erreurConnexion" role="alert"></p>
   </form>
@@ -157,6 +160,6 @@
 
 <div class="message" id="message" role="status" hidden></div>
 
-<script src="admin.js?v=1"></script>
+<script src="admin.js?v=2"></script>
 </body>
 </html>
